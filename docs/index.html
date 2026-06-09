@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sierentz ⇄ Basel SBB — Train Delays</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Sierentz ⇄ Basel SBB — how late are my trains?</h1>
+    <p class="lead">
+      Daily commute: <b>Morning</b> Sierentz 07:32 → Basel SBB 07:50 ·
+      <b>Evening</b> Basel SBB 17:38 → Sierentz 17:56. Delay measured at arrival.
+      Source: SNCF (Navitia) API. <span id="meta"></span>
+    </p>
+  </header>
+
+  <section id="stats" class="stats"></section>
+
+  <section>
+    <div class="legend">
+      <span class="swatch ontime"></span> on time
+      <span class="swatch late-light"></span> &lt; 5 min late
+      <span class="swatch late-heavy"></span> ≥ 5 min late
+      <span class="swatch cancelled"></span> cancelled
+    </div>
+    <table id="trains">
+      <thead>
+        <tr>
+          <th>Date</th><th>Day</th><th>Train</th><th>Direction</th>
+          <th>Sched. dep.</th><th>Actual dep.</th>
+          <th>Sched. arr.</th><th>Actual arr.</th>
+          <th>Delay at arrival</th>
+        </tr>
+      </thead>
+      <tbody id="rows"><tr><td colspan="9">Loading…</td></tr></tbody>
+    </table>
+  </section>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+:root {
+  --late-light: #ffe0e0;
+  --late-heavy: #ff8f8f;
+  --cancelled: #b71c1c;
+  --ink: #1a1a1a;
+  --muted: #666;
+  --line: #e3e3e3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  margin: 0;
+  padding: 1.5rem clamp(1rem, 4vw, 3rem);
+  background: #fafafa;
+}
+
+header h1 { margin: 0 0 .25rem; font-size: 1.6rem; }
+.lead { color: var(--muted); margin: 0 0 1.5rem; max-width: 70ch; line-height: 1.5; }
+#meta { display: block; margin-top: .25rem; font-size: .85rem; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.25rem; }
+.card h3 { margin: 0 0 .5rem; font-size: 1rem; }
+.card .big { font-size: 2.4rem; font-weight: 700; line-height: 1; color: var(--cancelled); }
+.card .sub { color: var(--muted); font-size: .8rem; margin-bottom: .5rem; }
+.card ul { margin: 0; padding-left: 1.1rem; font-size: .9rem; line-height: 1.6; }
+
+.legend { font-size: .85rem; color: var(--muted); margin-bottom: .5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: .25rem; border: 1px solid var(--line); }
+.swatch.ontime { background: #fff; }
+.swatch.late-light { background: var(--late-light); }
+.swatch.late-heavy { background: var(--late-heavy); }
+.swatch.cancelled { background: var(--cancelled); }
+
+table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: .9rem; }
+th, td { padding: .5rem .65rem; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { background: #f2f2f2; font-weight: 600; position: sticky; top: 0; }
+td.delay { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+tr.late-light { background: var(--late-light); }
+tr.late-heavy { background: var(--late-heavy); }
+tr.cancelled { background: var(--cancelled); color: #fff; }
+tr.cancelled td.delay { color: #fff; }
