@@ -30,8 +30,9 @@ header h1 { margin: 0 0 .25rem; font-size: 1.6rem; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
 .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.25rem; }
 .card h3 { margin: 0 0 .5rem; font-size: 1rem; }
-.card .big { font-size: 2.4rem; font-weight: 700; line-height: 1; color: var(--cancelled); }
-.card .sub { color: var(--muted); font-size: .8rem; margin-bottom: .5rem; }
+.card .headline { display: flex; gap: 1.5rem; margin-bottom: .6rem; }
+.card .big { font-size: 2.1rem; font-weight: 700; line-height: 1; color: var(--cancelled); }
+.card .sub { color: var(--muted); font-size: .75rem; margin-top: .15rem; }
 .card ul { margin: 0; padding-left: 1.1rem; font-size: .9rem; line-height: 1.6; }
 
 h2 { font-size: 1.2rem; margin: 1.5rem 0 .25rem; }

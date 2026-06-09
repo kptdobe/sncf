@@ -33,8 +33,10 @@ function delayLabel(o) {
 function statCard(title, s) {
   return `<div class="card">
     <h3>${title}</h3>
-    <div class="big">${s.pctDisrupted}%</div>
-    <div class="sub">pas à l'heure prévue</div>
+    <div class="headline">
+      <div class="stat"><div class="big">${s.pctLate5}%</div><div class="sub">≥ 5 min de retard</div></div>
+      <div class="stat"><div class="big">${s.pctCancelled}%</div><div class="sub">annulés</div></div>
+    </div>
     <ul>
       <li><b>${s.total}</b> trains observés</li>
       <li>à l'heure : <b>${s.onTime}</b> (${s.pctOnTime}%)</li>
