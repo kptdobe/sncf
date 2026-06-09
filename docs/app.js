@@ -2,13 +2,21 @@
 // immediately (ES module imports are otherwise cached aggressively).
 const { computeStats, rowCategory, classifyByTrain } = await import(`./stats.js?v=${Date.now()}`);
 
+const PERIOD_FR = { morning: 'Matin', evening: 'Soir' };
+const WEEKDAY_FR = {
+  Monday: 'Lundi', Tuesday: 'Mardi', Wednesday: 'Mercredi', Thursday: 'Jeudi',
+  Friday: 'Vendredi', Saturday: 'Samedi', Sunday: 'Dimanche',
+};
+// Direction labels in the per-period stat/ranking cards.
+const TITLE_FR = { morning: 'Matin → Basel SBB', evening: 'Soir → Sierentz' };
+
 async function loadObservations() {
   const manifest = await fetch(`./data/manifest.json?t=${Date.now()}`).then((r) => r.json());
   const weeks = await Promise.all(
     manifest.weeks.map((w) => fetch(`./data/${w}.json?t=${Date.now()}`).then((r) => r.json())),
   );
   const observations = weeks.flatMap((w) => w.observations || []);
-  // Newest first.
+  // Plus récent en premier.
   observations.sort((a, b) => (a.scheduledDeparture < b.scheduledDeparture ? 1 : -1));
   return { observations, manifest };
 }
@@ -16,24 +24,24 @@ async function loadObservations() {
 const time = (iso) => (iso ? iso.slice(11, 16) : '—');
 
 function delayLabel(o) {
-  if (o.cancelled) return 'Cancelled';
+  if (o.cancelled) return 'Annulé';
   if (o.arrivalDelay == null) return '—';
   const v = `${o.arrivalDelay > 0 ? '+' : ''}${o.arrivalDelay} min`;
-  return o.proxy ? `${v}<span class="proxy" title="Delay at Basel SBB departure (proxy); arrival at Sierentz not recorded historically">&nbsp;≈</span>` : v;
+  return o.proxy ? `${v}<span class="proxy" title="Retard au départ de Basel SBB (approximation) ; l'arrivée à Sierentz n'est pas enregistrée dans l'historique">&nbsp;≈</span>` : v;
 }
 
 function statCard(title, s) {
   return `<div class="card">
     <h3>${title}</h3>
     <div class="big">${s.pctDisrupted}%</div>
-    <div class="sub">not on time as scheduled</div>
+    <div class="sub">pas à l'heure prévue</div>
     <ul>
-      <li><b>${s.total}</b> trains observed</li>
-      <li>on time: <b>${s.onTime}</b> (${s.pctOnTime}%)</li>
-      <li>late &lt; 5 min: <b>${s.lateUnder5}</b> (${s.pctLateUnder5}%)</li>
-      <li>late ≥ 5 min: <b>${s.late5}</b> (${s.pctLate5}%)</li>
-      <li>cancelled: <b>${s.cancelled}</b> (${s.pctCancelled}%)</li>
-      <li><b>${s.accumulatedDelay}</b> min accumulated · <b>${s.averageDelay}</b> avg · worst <b>${s.maxDelay}</b></li>
+      <li><b>${s.total}</b> trains observés</li>
+      <li>à l'heure : <b>${s.onTime}</b> (${s.pctOnTime}%)</li>
+      <li>retard &lt; 5 min : <b>${s.lateUnder5}</b> (${s.pctLateUnder5}%)</li>
+      <li>retard ≥ 5 min : <b>${s.late5}</b> (${s.pctLate5}%)</li>
+      <li>annulés : <b>${s.cancelled}</b> (${s.pctCancelled}%)</li>
+      <li><b>${s.accumulatedDelay}</b> min cumulées · <b>${s.averageDelay}</b> moy. · pire <b>${s.maxDelay}</b></li>
     </ul>
   </div>`;
 }
@@ -42,14 +50,14 @@ function renderStats(observations) {
   const morning = observations.filter((o) => o.period === 'morning');
   const evening = observations.filter((o) => o.period === 'evening');
   document.getElementById('stats').innerHTML = [
-    statCard('All trains', computeStats(observations)),
-    statCard('Morning → Basel SBB', computeStats(morning)),
-    statCard('Evening → Sierentz', computeStats(evening)),
+    statCard('Tous les trains', computeStats(observations)),
+    statCard(TITLE_FR.morning, computeStats(morning)),
+    statCard(TITLE_FR.evening, computeStats(evening)),
   ].join('');
 }
 
 function rankingTable(title, rows) {
-  if (rows.length === 0) return `<div class="rank-card"><h3>${title}</h3><p class="hint">No data yet.</p></div>`;
+  if (rows.length === 0) return `<div class="rank-card"><h3>${title}</h3><p class="hint">Pas encore de données.</p></div>`;
   const body = rows.map((r, i) => {
     const s = r.stats;
     const arr = r.scheduledArrival ? r.scheduledArrival.slice(11, 16) : '';
@@ -67,7 +75,7 @@ function rankingTable(title, rows) {
   }).join('');
   return `<div class="rank-card"><h3>${title}</h3>
     <table class="rank">
-      <thead><tr><th>#</th><th>Train</th><th>Days</th><th>On&nbsp;time</th><th>Late</th><th>≥5&nbsp;min</th><th>Cancel</th><th>Avg</th><th>Worst</th></tr></thead>
+      <thead><tr><th>#</th><th>Train</th><th>Jours</th><th>À&nbsp;l'heure</th><th>Retard</th><th>≥5&nbsp;min</th><th>Annulé</th><th>Moy.</th><th>Pire</th></tr></thead>
       <tbody>${body}</tbody>
     </table></div>`;
 }
@@ -75,17 +83,15 @@ function rankingTable(title, rows) {
 function renderRanking(observations) {
   const morning = classifyByTrain(observations.filter((o) => o.period === 'morning'));
   const evening = classifyByTrain(observations.filter((o) => o.period === 'evening'));
-  document.getElementById('ranking').innerHTML = rankingTable('Morning → Basel SBB', morning)
-    + rankingTable('Evening → Sierentz', evening);
+  document.getElementById('ranking').innerHTML = rankingTable(TITLE_FR.morning, morning)
+    + rankingTable(TITLE_FR.evening, evening);
 }
-
-const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function renderTable(observations) {
   document.getElementById('rows').innerHTML = observations.map((o) => `
     <tr class="${rowCategory(o)}">
-      <td>${o.date}</td><td>${o.weekday}</td>
-      <td>${cap(o.period)}</td><td>${o.direction}</td><td>${o.trainNumber || '—'}</td>
+      <td>${o.date}</td><td>${WEEKDAY_FR[o.weekday] || o.weekday}</td>
+      <td>${PERIOD_FR[o.period] || o.period}</td><td>${o.direction}</td><td>${o.trainNumber || '—'}</td>
       <td>${time(o.scheduledDeparture)}</td><td>${time(o.actualDeparture)}</td>
       <td>${time(o.scheduledArrival)}</td><td>${time(o.actualArrival)}</td>
       <td class="delay">${delayLabel(o)}</td>
@@ -98,10 +104,11 @@ async function main() {
     renderStats(observations);
     renderRanking(observations);
     renderTable(observations);
-    const updated = manifest.lastUpdated ? new Date(manifest.lastUpdated).toLocaleString() : 'unknown';
-    document.getElementById('meta').textContent = `${observations.length} observations · last updated ${updated}`;
+    const updated = manifest.lastUpdated
+      ? new Date(manifest.lastUpdated).toLocaleString('fr-FR') : 'inconnue';
+    document.getElementById('meta').textContent = `${observations.length} observations · dernière mise à jour ${updated}`;
   } catch (err) {
-    document.getElementById('rows').innerHTML = `<tr><td colspan="10">Failed to load data: ${err.message}</td></tr>`;
+    document.getElementById('rows').innerHTML = `<tr><td colspan="10">Échec du chargement des données : ${err.message}</td></tr>`;
   }
 }
 

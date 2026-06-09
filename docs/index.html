@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sierentz ⇄ Basel SBB — Train Delays</title>
+  <title>Sierentz ⇄ Basel SBB — Retards des trains</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>Sierentz ⇄ Basel SBB — how late are my trains?</h1>
+    <h1>Sierentz ⇄ Basel SBB — mes trains sont-ils en retard ?</h1>
     <p class="lead">
-      My candidate commuter trains, Monday to Friday — delay measured <b>at arrival</b>, ~18 min ride.<br />
-      <b>Morning</b> (Sierentz → Basel SBB): 07:02 · 07:32 · 08:02 · 08:32 &nbsp;—&nbsp;
-      <b>Evening</b> (Basel SBB → Sierentz): 17:08 · 17:38 · 18:08 · 18:38.<br />
-      Source: SNCF (Navitia) API, mornings backfilled from the Swiss Ist-Daten archive.
+      Mes trains de trajet quotidien candidats, du lundi au vendredi — retard mesuré <b>à l'arrivée</b>, trajet ~18 min.<br />
+      <b>Matin</b> (Sierentz → Basel SBB) : 07:02 · 07:32 · 08:02 · 08:32 &nbsp;—&nbsp;
+      <b>Soir</b> (Basel SBB → Sierentz) : 17:08 · 17:38 · 18:08 · 18:38.<br />
+      Source : API SNCF (Navitia), matins complétés depuis l'archive suisse Ist-Daten.
       <span id="meta"></span>
     </p>
   </header>
@@ -21,34 +21,34 @@
   <section id="stats" class="stats"></section>
 
   <section>
-    <h2>Which train should I take?</h2>
-    <p class="hint">Ranked by reliability — least likely to be ≥5 min late or cancelled. The ★ train is the safest bet.
-      Evening history uses the Basel-departure proxy (marked ≈ below).</p>
+    <h2>Quel train prendre ?</h2>
+    <p class="hint">Classés par fiabilité — les moins susceptibles d'avoir ≥5 min de retard ou d'être annulés. Le train ★ est le plus sûr.
+      L'historique du soir utilise l'approximation du départ de Bâle (marqué ≈ ci-dessous).</p>
     <div id="ranking" class="ranking"></div>
   </section>
 
   <section>
-    <h2>All journeys</h2>
+    <h2>Tous les trajets</h2>
     <div class="legend">
-      <span class="swatch ontime"></span> on time
-      <span class="swatch late-light"></span> &lt; 5 min late
-      <span class="swatch late-heavy"></span> ≥ 5 min late
-      <span class="swatch cancelled"></span> cancelled
+      <span class="swatch ontime"></span> à l'heure
+      <span class="swatch late-light"></span> &lt; 5 min de retard
+      <span class="swatch late-heavy"></span> ≥ 5 min de retard
+      <span class="swatch cancelled"></span> annulé
     </div>
     <table id="trains">
       <thead>
         <tr>
-          <th>Date</th><th>Day</th><th>Train</th><th>Direction</th><th>Train no.</th>
-          <th>Sched. dep.</th><th>Actual dep.</th>
-          <th>Sched. arr.</th><th>Actual arr.</th>
-          <th>Delay at arrival</th>
+          <th>Date</th><th>Jour</th><th>Train</th><th>Direction</th><th>N° train</th>
+          <th>Départ prévu</th><th>Départ réel</th>
+          <th>Arrivée prévue</th><th>Arrivée réelle</th>
+          <th>Retard à l'arrivée</th>
         </tr>
       </thead>
-      <tbody id="rows"><tr><td colspan="10">Loading…</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="10">Chargement…</td></tr></tbody>
     </table>
-    <p class="hint"><b>≈</b> Evening rows from the historical backfill show the delay measured at the
-      <b>Basel SBB departure</b> — a proxy, since the arrival at Sierentz (France) isn't recorded in any
-      historical source. Recent evening rows (collected live from SNCF) use the true Sierentz arrival.</p>
+    <p class="hint"><b>≈</b> Les lignes du soir issues de l'historique indiquent le retard mesuré au
+      <b>départ de Basel SBB</b> — une approximation, car l'arrivée à Sierentz (France) n'est enregistrée dans aucune
+      source historique. Les lignes récentes du soir (collectées en direct via SNCF) utilisent l'arrivée réelle à Sierentz.</p>
   </section>
 
   <script type="module" src="app.js"></script>
