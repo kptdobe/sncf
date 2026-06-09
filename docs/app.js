@@ -98,15 +98,67 @@ function renderTable(observations) {
     </tr>`).join('');
 }
 
+const WEEKDAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+let ALL = [];
+let LAST_UPDATED = 'inconnue';
+
+function option(value, text) {
+  const o = document.createElement('option');
+  o.value = value;
+  o.textContent = text;
+  return o;
+}
+
+function populateFilters() {
+  const daySel = document.getElementById('f-day');
+  const periodSel = document.getElementById('f-period');
+  const trainSel = document.getElementById('f-train');
+
+  daySel.append(option('', 'Tous'));
+  WEEKDAY_ORDER.filter((d) => ALL.some((o) => o.weekday === d))
+    .forEach((d) => daySel.append(option(d, WEEKDAY_FR[d])));
+
+  periodSel.append(option('', 'Toutes'), option('morning', 'Matin'), option('evening', 'Soir'));
+
+  trainSel.append(option('', 'Tous'));
+  const seen = new Map();
+  for (const o of ALL) if (!seen.has(o.trainId)) seen.set(o.trainId, o);
+  [...seen.values()]
+    .sort((a, b) => (a.scheduledDeparture < b.scheduledDeparture ? -1 : 1))
+    .forEach((o) => trainSel.append(option(o.trainId, `${o.direction} · ${o.label}`)));
+
+  // Force a clean default (browsers may otherwise restore a prior selection on reload).
+  [daySel, periodSel, trainSel].forEach((s) => { s.value = ''; s.addEventListener('change', applyFilters); });
+  document.getElementById('f-reset').addEventListener('click', () => {
+    daySel.value = ''; periodSel.value = ''; trainSel.value = '';
+    applyFilters();
+  });
+}
+
+function applyFilters() {
+  const day = document.getElementById('f-day').value;
+  const period = document.getElementById('f-period').value;
+  const train = document.getElementById('f-train').value;
+  const filtered = ALL.filter((o) => (!day || o.weekday === day)
+    && (!period || o.period === period)
+    && (!train || o.trainId === train));
+
+  renderStats(filtered);
+  renderRanking(filtered);
+  renderTable(filtered);
+
+  const scope = filtered.length === ALL.length ? `${ALL.length}` : `${filtered.length} / ${ALL.length}`;
+  document.getElementById('meta').textContent = `${scope} observations · dernière mise à jour ${LAST_UPDATED}`;
+}
+
 async function main() {
   try {
     const { observations, manifest } = await loadObservations();
-    renderStats(observations);
-    renderRanking(observations);
-    renderTable(observations);
-    const updated = manifest.lastUpdated
+    ALL = observations;
+    LAST_UPDATED = manifest.lastUpdated
       ? new Date(manifest.lastUpdated).toLocaleString('fr-FR') : 'inconnue';
-    document.getElementById('meta').textContent = `${observations.length} observations · dernière mise à jour ${updated}`;
+    populateFilters();
+    applyFilters();
   } catch (err) {
     document.getElementById('rows').innerHTML = `<tr><td colspan="10">Échec du chargement des données : ${err.message}</td></tr>`;
   }
