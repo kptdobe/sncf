@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildObservation } from '../src/observe.js';
+import { buildObservation, selectCompleted } from '../src/observe.js';
 import { TRAINS } from '../src/config.js';
 
 const MORNING = TRAINS.find((t) => t.id === 'morning');
@@ -72,6 +72,20 @@ test('cancelled (realtime reports NO_SERVICE for the train)', () => {
   });
   assert.equal(obs.cancelled, true);
   assert.equal(obs.arrivalDelay, null);
+});
+
+test('selectCompleted drops trains that have not arrived yet', () => {
+  const data = [
+    { trainId: 'morning', scheduledArrival: '2026-06-09T07:50:00' },
+    { trainId: 'evening', scheduledArrival: '2026-06-09T17:56:00' },
+  ];
+  // At 10:00 the morning train has arrived but the evening one has not.
+  const kept = selectCompleted(data, '2026-06-09T10:00:00');
+  assert.deepEqual(kept.map((o) => o.trainId), ['morning']);
+  // After both have arrived, keep both.
+  assert.equal(selectCompleted(data, '2026-06-09T20:00:00').length, 2);
+  // Before either, keep none.
+  assert.equal(selectCompleted(data, '2026-06-09T06:00:00').length, 0);
 });
 
 test('not scheduled that day → no observation', () => {

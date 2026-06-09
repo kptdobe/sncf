@@ -19,7 +19,7 @@
 import processQueue from '@adobe/helix-shared-process-queue';
 import { TRAINS } from './config.js';
 import { fetchJourneys } from './sncf.js';
-import { buildObservation } from './observe.js';
+import { buildObservation, selectCompleted } from './observe.js';
 import {
   navitiaDay, isoWeekKey, isWeekday, dateRange, addDays,
 } from './datetime.js';
@@ -27,6 +27,15 @@ import { readWeek, writeWeek, mergeObservations, writeManifest } from './storage
 
 function parisToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date());
+}
+
+/** Current Europe/Paris time as a local "YYYY-MM-DDTHH:MM:SS" string. */
+function parisNowIso() {
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Europe/Paris',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  }).format(new Date()).replace(' ', 'T');
 }
 
 function parseArgs(argv) {
@@ -92,11 +101,17 @@ async function main() {
   const tasks = [];
   for (const date of dates) for (const train of TRAINS) tasks.push({ date, train });
 
-  const observations = [];
+  const collected = [];
   await processQueue(tasks, async ({ date, train }) => {
     const obs = await collectOne(token, date, train);
-    if (obs) observations.push(obs);
+    if (obs) collected.push(obs);
   }, 5);
+
+  // Drop trains that have not completed their journey yet (their delay is not real).
+  const observations = selectCompleted(collected, parisNowIso());
+  const skipped = collected.length - observations.length;
+  if (skipped > 0) console.log(`(skipping ${skipped} train(s) that have not run yet)`);
+
   observations.sort((a, b) => (a.date === b.date
     ? (a.trainId === 'morning' ? -1 : 1) - (b.trainId === 'morning' ? -1 : 1)
     : a.date.localeCompare(b.date)));

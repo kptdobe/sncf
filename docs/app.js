@@ -3,7 +3,7 @@ import { computeStats, rowCategory } from './stats.js';
 async function loadObservations() {
   const manifest = await fetch(`./data/manifest.json?t=${Date.now()}`).then((r) => r.json());
   const weeks = await Promise.all(
-    manifest.weeks.map((w) => fetch(`./data/${w}.json`).then((r) => r.json())),
+    manifest.weeks.map((w) => fetch(`./data/${w}.json?t=${Date.now()}`).then((r) => r.json())),
   );
   const observations = weeks.flatMap((w) => w.observations || []);
   // Newest first.

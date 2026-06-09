@@ -15,6 +15,16 @@ function matchByDeparture(journeys, scheduledHHMM) {
 }
 
 /**
+ * Keep only trains whose journey is already complete, i.e. whose scheduled
+ * arrival is at or before `nowLocalIso`. Both values are local
+ * "YYYY-MM-DDTHH:MM:SS" strings, so a lexicographic compare is chronological.
+ * Drops trains that have not run yet (their delay is not real).
+ */
+export function selectCompleted(observations, nowLocalIso) {
+  return observations.filter((o) => o.scheduledArrival && o.scheduledArrival <= nowLocalIso);
+}
+
+/**
  * @param {object} args
  * @param {object} args.train       one entry from config TRAINS
  * @param {string} args.date        "YYYY-MM-DD"
