@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { computeStats, rowCategory } from '../docs/stats.js';
+import { computeStats, rowCategory, classifyByTrain } from '../docs/stats.js';
 
 const obs = (over = {}) => ({ cancelled: false, arrivalDelay: 0, ...over });
 
@@ -41,6 +41,7 @@ test('computeStats aggregates a mixed week', () => {
   assert.equal(s.pctCancelled, 20);     // 1/5
   assert.equal(s.pctOnTime + s.pctLateUnder5 + s.pctLate5 + s.pctCancelled, 100);
   assert.equal(s.pctDisrupted, 80);     // (3 late + 1 cancelled)/5
+  assert.equal(s.pctSeriouslyDisrupted, 60); // (2 late≥5 + 1 cancelled)/5
 });
 
 test('computeStats handles an empty dataset without dividing by zero', () => {
@@ -54,4 +55,23 @@ test('computeStats handles an empty dataset without dividing by zero', () => {
 test('accumulatedDelay ignores early arrivals', () => {
   const s = computeStats([obs({ arrivalDelay: -3 }), obs({ arrivalDelay: 4 })]);
   assert.equal(s.accumulatedDelay, 4);
+});
+
+test('classifyByTrain groups by train and ranks most reliable first', () => {
+  const t = (trainId, label, arrivalDelay) => ({
+    trainId, label, period: 'morning', direction: 'Sierentz → Basel SBB', arrivalDelay, cancelled: false,
+  });
+  const data = [
+    t('m0702', '07:02', 0), t('m0702', '07:02', 0), // always on time
+    t('m0732', '07:32', 20), t('m0732', '07:32', 10), // always very late
+    t('m0802', '08:02', 2), t('m0802', '08:02', 0), // sometimes a bit late
+  ];
+  const ranked = classifyByTrain(data);
+  // Ranked by fewest serious disruptions (≥5 min late or cancelled), then avg.
+  assert.deepEqual(ranked.map((r) => r.label), ['07:02', '08:02', '07:32']);
+  assert.equal(ranked[0].stats.total, 2);
+  assert.equal(ranked[0].stats.pctOnTime, 100); // 07:02 best
+  assert.equal(ranked[0].stats.pctSeriouslyDisrupted, 0);
+  assert.equal(ranked[2].stats.pctSeriouslyDisrupted, 100); // 07:32 always ≥5 late
+  assert.equal(ranked[2].stats.averageDelay, 15); // 07:32 worst
 });

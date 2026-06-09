@@ -10,15 +10,24 @@
   <header>
     <h1>Sierentz ⇄ Basel SBB — how late are my trains?</h1>
     <p class="lead">
-      Daily commute: <b>Morning</b> Sierentz 07:32 → Basel SBB 07:50 ·
-      <b>Evening</b> Basel SBB 17:38 → Sierentz 17:56. Delay measured at arrival.
-      Source: SNCF (Navitia) API. <span id="meta"></span>
+      My candidate commuter trains, Monday to Friday — delay measured <b>at arrival</b>, ~18 min ride.<br />
+      <b>Morning</b> (Sierentz → Basel SBB): 07:02 · 07:32 · 08:02 · 08:32 &nbsp;—&nbsp;
+      <b>Evening</b> (Basel SBB → Sierentz): 17:08 · 17:38 · 18:08 · 18:38.<br />
+      Source: SNCF (Navitia) API, mornings backfilled from the Swiss Ist-Daten archive.
+      <span id="meta"></span>
     </p>
   </header>
 
   <section id="stats" class="stats"></section>
 
   <section>
+    <h2>Which train should I take?</h2>
+    <p class="hint">Ranked by reliability — least likely to be ≥5 min late or cancelled. The ★ train is the safest bet.</p>
+    <div id="ranking" class="ranking"></div>
+  </section>
+
+  <section>
+    <h2>All journeys</h2>
     <div class="legend">
       <span class="swatch ontime"></span> on time
       <span class="swatch late-light"></span> &lt; 5 min late

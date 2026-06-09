@@ -3,11 +3,15 @@
 Tracks how late my daily commuter trains are, using the **SNCF (Navitia) API**,
 and publishes a dashboard on GitHub Pages.
 
-- **Morning** — Sierentz 07:32 → Basel SBB 07:50
-- **Evening** — Basel SBB 17:38 → Sierentz 17:56
+- **Morning** — Sierentz → Basel SBB: **07:02 · 07:32 · 08:02 · 08:32**
+- **Evening** — Basel SBB → Sierentz: **17:08 · 17:38 · 18:08 · 18:38**
 
-Delay is measured **at arrival** (delay tends to accumulate after departure).
-Monday–Friday only.
+Each ride is ~18 min. Delay is measured **at arrival** (delay tends to accumulate
+after departure). Monday–Friday only. The dashboard also ranks the four morning
+and four evening departures by reliability, to advise which to take.
+
+To track different trains, edit `MORNING` / `EVENING` in `src/config.js` — the
+collector and dashboard pick them up automatically.
 
 ## Why SNCF-only, and why daily
 

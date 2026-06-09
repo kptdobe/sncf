@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { buildObservation, selectCompleted } from '../src/observe.js';
 import { TRAINS } from '../src/config.js';
 
-const MORNING = TRAINS.find((t) => t.id === 'morning');
+const MORNING = TRAINS.find((t) => t.id === 'm0732');
 const nav = (hhmm) => `20260609T${hhmm.replace(':', '')}00`;
 
 // Build a simplified journey in the shape parseJourneysResponse returns.
@@ -32,6 +32,8 @@ test('delayed train: computes departure and arrival delay', () => {
   assert.equal(obs.scheduledArrival, '2026-06-09T07:50:00');
   assert.equal(obs.actualArrival, '2026-06-09T08:10:00');
   assert.equal(obs.weekday, 'Tuesday');
+  assert.equal(obs.period, 'morning');
+  assert.equal(obs.label, '07:32');
   assert.equal(obs.direction, 'Sierentz → Basel SBB');
   assert.equal(obs.status, 'SIGNIFICANT_DELAYS');
 });

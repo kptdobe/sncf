@@ -14,6 +14,34 @@ export function rowCategory(obs) {
   return 'ontime';
 }
 
+/**
+ * Group observations by individual train and rank them most-reliable first
+ * (fewest disruptions, then lowest average delay). Used to advise which of the
+ * morning / evening departures to take. Returns an array of
+ * { trainId, label, period, direction, scheduledArrival, stats }.
+ */
+export function classifyByTrain(observations) {
+  const groups = new Map();
+  for (const o of observations) {
+    if (!groups.has(o.trainId)) {
+      groups.set(o.trainId, {
+        trainId: o.trainId,
+        label: o.label,
+        period: o.period,
+        direction: o.direction,
+        scheduledArrival: o.scheduledArrival,
+        observations: [],
+      });
+    }
+    groups.get(o.trainId).observations.push(o);
+  }
+  return [...groups.values()]
+    .map((g) => ({ ...g, stats: computeStats(g.observations) }))
+    .sort((a, b) => a.stats.pctSeriouslyDisrupted - b.stats.pctSeriouslyDisrupted
+      || a.stats.averageDelay - b.stats.averageDelay
+      || (a.label < b.label ? -1 : 1));
+}
+
 const positive = (d) => (typeof d === 'number' && d > 0 ? d : 0);
 
 /**
@@ -61,5 +89,7 @@ export function computeStats(observations) {
     pctLate: pct(late, total),
     // "not on time as planned" = late or cancelled, over all scheduled trains
     pctDisrupted: pct(late + cancelled, total),
+    // the commute-ruining cases: ≥5 min late OR cancelled. Drives the ranking.
+    pctSeriouslyDisrupted: pct(late5 + cancelled, total),
   };
 }

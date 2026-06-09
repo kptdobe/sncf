@@ -6,18 +6,20 @@ import { fileURLToPath } from 'node:url';
 
 export const DATA_DIR = fileURLToPath(new URL('../docs/data/', import.meta.url));
 
-const TRAIN_ORDER = { morning: 0, evening: 1 };
-
 /**
  * Merge incoming observations into existing ones, replacing any with the same
- * (date, trainId) and sorting by date then morning-before-evening. Pure.
+ * (date, trainId) and sorting chronologically by scheduled departure. Pure.
  */
 export function mergeObservations(existing, incoming) {
   const byKey = new Map();
   for (const o of [...existing, ...incoming]) byKey.set(`${o.date}:${o.trainId}`, o);
+  const key = (o) => o.scheduledDeparture || `${o.date}T${o.label || ''}`;
   return [...byKey.values()].sort((a, b) => {
     if (a.date !== b.date) return a.date < b.date ? -1 : 1;
-    return (TRAIN_ORDER[a.trainId] ?? 9) - (TRAIN_ORDER[b.trainId] ?? 9);
+    const ka = key(a);
+    const kb = key(b);
+    if (ka !== kb) return ka < kb ? -1 : 1;
+    return a.trainId < b.trainId ? -1 : 1;
   });
 }
 

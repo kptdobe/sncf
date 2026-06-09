@@ -75,7 +75,7 @@ async function collectOne(token, date, train) {
 
 function describe(o) {
   const arr = o.cancelled ? 'CANCELLED' : `${o.actualArrival?.slice(11, 16)} (${o.arrivalDelay >= 0 ? '+' : ''}${o.arrivalDelay} min)`;
-  return `${o.date} ${o.weekday.padEnd(9)} ${o.label.padEnd(7)} ${o.direction}  sched ${o.scheduledArrival.slice(11, 16)} -> ${arr}`;
+  return `${o.date} ${o.weekday.padEnd(9)} ${o.period.padEnd(7)} ${o.label} ${o.direction}  arr ${o.scheduledArrival.slice(11, 16)} -> ${arr}`;
 }
 
 const HELP = `Collect Sierentz <-> Basel SBB delay observations into docs/data/<week>.json
@@ -112,9 +112,7 @@ async function main() {
   const skipped = collected.length - observations.length;
   if (skipped > 0) console.log(`(skipping ${skipped} train(s) that have not run yet)`);
 
-  observations.sort((a, b) => (a.date === b.date
-    ? (a.trainId === 'morning' ? -1 : 1) - (b.trainId === 'morning' ? -1 : 1)
-    : a.date.localeCompare(b.date)));
+  observations.sort((a, b) => (a.scheduledDeparture < b.scheduledDeparture ? -1 : 1));
 
   console.log(`\nCollected ${observations.length} observation(s) over ${dates.length} day(s):\n`);
   for (const o of observations) console.log(`  ${describe(o)}`);

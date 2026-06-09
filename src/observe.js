@@ -43,6 +43,7 @@ export function buildObservation({ train, date, baseJourneys, realtimeJourneys }
     date,
     weekday: weekdayName(date),
     trainId: train.id,
+    period: train.period,
     label: train.label,
     direction: train.direction,
     origin: train.originName,
