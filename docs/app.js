@@ -51,7 +51,7 @@ function renderTable(observations) {
   document.getElementById('rows').innerHTML = observations.map((o) => `
     <tr class="${rowCategory(o)}">
       <td>${o.date}</td><td>${o.weekday}</td>
-      <td>${o.label}</td><td>${o.direction}</td>
+      <td>${o.label}</td><td>${o.direction}</td><td>${o.trainNumber || '—'}</td>
       <td>${time(o.scheduledDeparture)}</td><td>${time(o.actualDeparture)}</td>
       <td>${time(o.scheduledArrival)}</td><td>${time(o.actualArrival)}</td>
       <td class="delay">${delayLabel(o)}</td>
@@ -66,7 +66,7 @@ async function main() {
     const updated = manifest.lastUpdated ? new Date(manifest.lastUpdated).toLocaleString() : 'unknown';
     document.getElementById('meta').textContent = `${observations.length} observations · last updated ${updated}`;
   } catch (err) {
-    document.getElementById('rows').innerHTML = `<tr><td colspan="9">Failed to load data: ${err.message}</td></tr>`;
+    document.getElementById('rows').innerHTML = `<tr><td colspan="10">Failed to load data: ${err.message}</td></tr>`;
   }
 }
 
