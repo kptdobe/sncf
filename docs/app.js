@@ -18,7 +18,8 @@ const time = (iso) => (iso ? iso.slice(11, 16) : '—');
 function delayLabel(o) {
   if (o.cancelled) return 'Cancelled';
   if (o.arrivalDelay == null) return '—';
-  return `${o.arrivalDelay > 0 ? '+' : ''}${o.arrivalDelay} min`;
+  const v = `${o.arrivalDelay > 0 ? '+' : ''}${o.arrivalDelay} min`;
+  return o.proxy ? `${v}<span class="proxy" title="Delay at Basel SBB departure (proxy); arrival at Sierentz not recorded historically">&nbsp;≈</span>` : v;
 }
 
 function statCard(title, s) {

@@ -56,3 +56,4 @@ tr.late-light { background: var(--late-light); }
 tr.late-heavy { background: var(--late-heavy); }
 tr.cancelled { background: var(--cancelled); color: #fff; }
 tr.cancelled td.delay { color: #fff; }
+.proxy { font-size: .8em; opacity: .65; cursor: help; }

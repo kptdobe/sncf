@@ -22,7 +22,8 @@
 
   <section>
     <h2>Which train should I take?</h2>
-    <p class="hint">Ranked by reliability — least likely to be ≥5 min late or cancelled. The ★ train is the safest bet.</p>
+    <p class="hint">Ranked by reliability — least likely to be ≥5 min late or cancelled. The ★ train is the safest bet.
+      Evening history uses the Basel-departure proxy (marked ≈ below).</p>
     <div id="ranking" class="ranking"></div>
   </section>
 
@@ -45,6 +46,9 @@
       </thead>
       <tbody id="rows"><tr><td colspan="10">Loading…</td></tr></tbody>
     </table>
+    <p class="hint"><b>≈</b> Evening rows from the historical backfill show the delay measured at the
+      <b>Basel SBB departure</b> — a proxy, since the arrival at Sierentz (France) isn't recorded in any
+      historical source. Recent evening rows (collected live from SNCF) use the true Sierentz arrival.</p>
   </section>
 
   <script type="module" src="app.js"></script>
