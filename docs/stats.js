@@ -66,7 +66,7 @@ export function computeStats(observations) {
     if (worst === null || (o.arrivalDelay ?? 0) > (worst.arrivalDelay ?? 0)) worst = o;
   }
 
-  const pct = (n, d) => (d > 0 ? Math.round((n / d) * 1000) / 10 : 0);
+  const pct = (n, d) => (d > 0 ? Math.round((n / d) * 100) : 0);
 
   return {
     total,
