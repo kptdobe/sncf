@@ -30,6 +30,7 @@ export function computeStats(observations) {
   const accumulatedDelay = delays.reduce((a, b) => a + b, 0);
   const late = ran.filter((o) => o.arrivalDelay >= 1).length;
   const late5 = ran.filter((o) => o.arrivalDelay >= 5).length;
+  const lateUnder5 = late - late5;
   const onTime = ranCount - late;
 
   let worst = null;
@@ -46,14 +47,18 @@ export function computeStats(observations) {
     onTime,
     late,
     late5,
+    lateUnder5,
     accumulatedDelay,
     averageDelay: ranCount > 0 ? Math.round((accumulatedDelay / ranCount) * 10) / 10 : 0,
     maxDelay: worst ? worst.arrivalDelay : 0,
     worst,
+    // Mutually-exclusive buckets as a share of all observed trains; these four
+    // (on time / late <5 / late ≥5 / cancelled) sum to ~100%.
+    pctOnTime: pct(onTime, total),
+    pctLateUnder5: pct(lateUnder5, total),
+    pctLate5: pct(late5, total),
     pctCancelled: pct(cancelled, total),
-    pctLate: pct(late, ranCount),
-    pctLate5: pct(late5, ranCount),
-    pctOnTime: pct(onTime, ranCount),
+    pctLate: pct(late, total),
     // "not on time as planned" = late or cancelled, over all scheduled trains
     pctDisrupted: pct(late + cancelled, total),
   };

@@ -1,4 +1,6 @@
-import { computeStats, rowCategory } from './stats.js';
+// Cache-bust the module import so a redeploy of stats.js is picked up
+// immediately (ES module imports are otherwise cached aggressively).
+const { computeStats, rowCategory } = await import(`./stats.js?v=${Date.now()}`);
 
 async function loadObservations() {
   const manifest = await fetch(`./data/manifest.json?t=${Date.now()}`).then((r) => r.json());
@@ -26,10 +28,11 @@ function statCard(title, s) {
     <div class="sub">not on time as scheduled</div>
     <ul>
       <li><b>${s.total}</b> trains observed</li>
-      <li><b>${s.late}</b> late (${s.pctLate}%) · <b>${s.late5}</b> by ≥5 min</li>
-      <li><b>${s.cancelled}</b> cancelled (${s.pctCancelled}%)</li>
-      <li><b>${s.accumulatedDelay}</b> min accumulated delay</li>
-      <li><b>${s.averageDelay}</b> min average · worst <b>${s.maxDelay}</b> min</li>
+      <li>on time: <b>${s.onTime}</b> (${s.pctOnTime}%)</li>
+      <li>late &lt; 5 min: <b>${s.lateUnder5}</b> (${s.pctLateUnder5}%)</li>
+      <li>late ≥ 5 min: <b>${s.late5}</b> (${s.pctLate5}%)</li>
+      <li>cancelled: <b>${s.cancelled}</b> (${s.pctCancelled}%)</li>
+      <li><b>${s.accumulatedDelay}</b> min accumulated · <b>${s.averageDelay}</b> avg · worst <b>${s.maxDelay}</b></li>
     </ul>
   </div>`;
 }

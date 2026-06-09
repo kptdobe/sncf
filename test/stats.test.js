@@ -30,12 +30,16 @@ test('computeStats aggregates a mixed week', () => {
   assert.equal(s.onTime, 1);
   assert.equal(s.late, 3);
   assert.equal(s.late5, 2);
+  assert.equal(s.lateUnder5, 1);
   assert.equal(s.accumulatedDelay, 30); // 0+3+20+7
   assert.equal(s.averageDelay, 7.5);    // 30/4
   assert.equal(s.maxDelay, 20);
+  // Buckets as a share of all 5 observed trains (sum to 100%).
+  assert.equal(s.pctOnTime, 20);        // 1/5
+  assert.equal(s.pctLateUnder5, 20);    // 1/5 (the +3 min)
+  assert.equal(s.pctLate5, 40);         // 2/5 (the +20 and +7)
   assert.equal(s.pctCancelled, 20);     // 1/5
-  assert.equal(s.pctLate, 75);          // 3/4 ran
-  assert.equal(s.pctOnTime, 25);
+  assert.equal(s.pctOnTime + s.pctLateUnder5 + s.pctLate5 + s.pctCancelled, 100);
   assert.equal(s.pctDisrupted, 80);     // (3 late + 1 cancelled)/5
 });
 
