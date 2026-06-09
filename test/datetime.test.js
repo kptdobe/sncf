@@ -32,6 +32,13 @@ test('delayMinutes handles early trains and unknowns', () => {
   assert.equal(delayMinutes(null, '20260609T073200'), null);
 });
 
+test('delayMinutes drops seconds (within-the-minute arrival is on time)', () => {
+  // 07:50:59 against a 07:50 schedule is still 0, not +1.
+  assert.equal(delayMinutes('20260410T075000', '20260410T075059'), 0);
+  assert.equal(delayMinutes('20260410T075000', '20260410T075100'), 1);
+  assert.equal(delayMinutes('20260410T075000', '20260410T075130'), 1);
+});
+
 test('toIso and hhmm format for display', () => {
   assert.equal(toIso('20260609T075200'), '2026-06-09T07:52:00');
   assert.equal(hhmm('20260609T075200'), '07:52');

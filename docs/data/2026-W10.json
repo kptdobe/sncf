@@ -15,7 +15,7 @@
       "actualDeparture": null,
       "actualArrival": "2026-03-02T07:54:32",
       "departureDelay": null,
-      "arrivalDelay": 5,
+      "arrivalDelay": 4,
       "cancelled": false,
       "status": "REAL",
       "source": "swiss-istdaten"
@@ -72,7 +72,7 @@
       "actualDeparture": null,
       "actualArrival": "2026-03-05T07:53:40",
       "departureDelay": null,
-      "arrivalDelay": 4,
+      "arrivalDelay": 3,
       "cancelled": false,
       "status": "REAL",
       "source": "swiss-istdaten"
@@ -91,7 +91,7 @@
       "actualDeparture": null,
       "actualArrival": "2026-03-06T07:50:31",
       "departureDelay": null,
-      "arrivalDelay": 1,
+      "arrivalDelay": 0,
       "cancelled": false,
       "status": "REAL",
       "source": "swiss-istdaten"

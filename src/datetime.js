@@ -17,12 +17,16 @@ export function parseNavitia(value) {
   return new Date(Date.UTC(y, mo - 1, d, h, mi, s));
 }
 
-/** Delay in whole minutes between scheduled and realtime, or null if unknown. */
+/**
+ * Delay in whole minutes between scheduled and realtime, or null if unknown.
+ * Seconds are dropped (floored), so a train arriving at 07:50:59 against a
+ * 07:50 schedule counts as on time (0), not +1.
+ */
 export function delayMinutes(baseValue, realtimeValue) {
   const base = parseNavitia(baseValue);
   const rt = parseNavitia(realtimeValue);
   if (!base || !rt) return null;
-  return Math.round((rt.getTime() - base.getTime()) / 60000);
+  return Math.floor((rt.getTime() - base.getTime()) / 60000);
 }
 
 /** "YYYYMMDDTHHMMSS" -> ISO-like "YYYY-MM-DDTHH:MM:SS", or null. */
