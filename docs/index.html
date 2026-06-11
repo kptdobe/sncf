@@ -27,9 +27,18 @@
 
   <section id="stats" class="stats"></section>
 
+  <p class="hint contract-note">
+    <b>Seuil de conformité L1 (Mulhouse–Bâle) : 5 min 59 s.</b> Un train est <i>non conforme</i> s'il arrive
+    à <b>≥ 6 min</b> ou est <b>supprimé</b> (contrat TER Grand Est 2024-2033). Le « taux de conformité » ci-dessus
+    est calculé sur mes seuls trains — le malus bonus/malus officiel est agrégé par zone selon un barème non public
+    et n'est donc pas calculé ici. Les suppressions ouvrent en plus une pénalité kilométrique (3,01–3,88 €/train-km).
+    La conformité contractuelle se mesure au <i>terminus</i> : le matin (terminus Bâle) correspond ; le soir est
+    mesuré à Sierentz, pas au terminus.
+  </p>
+
   <section>
     <h2>Quel train prendre ?</h2>
-    <p class="hint">Classés par fiabilité — les moins susceptibles d'avoir ≥5 min de retard ou d'être annulés. Le train ★ est le plus sûr.
+    <p class="hint">Classés par fiabilité — les moins susceptibles d'être <b>non conformes</b> (≥6 min de retard ou annulés). Le train ★ est le plus sûr.
       L'historique du soir utilise l'approximation du départ de Bâle (marqué ≈ ci-dessous).</p>
     <div id="ranking" class="ranking"></div>
   </section>
@@ -38,8 +47,8 @@
     <h2>Tous les trajets</h2>
     <div class="legend">
       <span class="swatch ontime"></span> à l'heure
-      <span class="swatch late-light"></span> &lt; 5 min de retard
-      <span class="swatch late-heavy"></span> ≥ 5 min de retard
+      <span class="swatch late-light"></span> &lt; 6 min de retard
+      <span class="swatch late-heavy"></span> ≥ 6 min de retard
       <span class="swatch cancelled"></span> annulé
     </div>
     <table id="trains">

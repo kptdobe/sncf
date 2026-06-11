@@ -34,14 +34,14 @@ function statCard(title, s) {
   return `<div class="card">
     <h3>${title}</h3>
     <div class="headline">
-      <div class="stat"><div class="big">${s.pctLate5}%</div><div class="sub">≥ 5 min de retard</div></div>
+      <div class="stat"><div class="big">${s.pctLateMajor}%</div><div class="sub">≥ 6 min de retard</div></div>
       <div class="stat"><div class="big">${s.pctCancelled}%</div><div class="sub">annulés</div></div>
     </div>
     <ul>
-      <li><b>${s.total}</b> trains observés</li>
+      <li><b>${s.total}</b> trains · conformité <b>${s.pctConformity}%</b></li>
       <li>à l'heure : <b>${s.onTime}</b> (${s.pctOnTime}%)</li>
-      <li>retard &lt; 5 min : <b>${s.lateUnder5}</b> (${s.pctLateUnder5}%)</li>
-      <li>retard ≥ 5 min : <b>${s.late5}</b> (${s.pctLate5}%)</li>
+      <li>retard &lt; 6 min : <b>${s.lateMinor}</b> (${s.pctLateMinor}%)</li>
+      <li>retard ≥ 6 min : <b>${s.lateMajor}</b> (${s.pctLateMajor}%)</li>
       <li>annulés : <b>${s.cancelled}</b> (${s.pctCancelled}%)</li>
       <li><b>${s.accumulatedDelay}</b> min cumulées · <b>${s.averageDelay}</b> moy. · pire <b>${s.maxDelay}</b></li>
     </ul>
@@ -69,7 +69,7 @@ function rankingTable(title, rows) {
       <td>${s.total}</td>
       <td>${s.pctOnTime}%</td>
       <td>${s.pctLate}%</td>
-      <td>${s.pctLate5}%</td>
+      <td>${s.pctLateMajor}%</td>
       <td>${s.pctCancelled}%</td>
       <td>${s.averageDelay}</td>
       <td>${s.maxDelay}</td>
@@ -77,7 +77,7 @@ function rankingTable(title, rows) {
   }).join('');
   return `<div class="rank-card"><h3>${title}</h3>
     <table class="rank">
-      <thead><tr><th>#</th><th>Train</th><th>Jours</th><th>À&nbsp;l'heure</th><th>Retard</th><th>≥5&nbsp;min</th><th>Annulé</th><th>Moy.</th><th>Pire</th></tr></thead>
+      <thead><tr><th>#</th><th>Train</th><th>Jours</th><th>À&nbsp;l'heure</th><th>Retard</th><th>≥6&nbsp;min</th><th>Annulé</th><th>Moy.</th><th>Pire</th></tr></thead>
       <tbody>${body}</tbody>
     </table></div>`;
 }

@@ -1,6 +1,12 @@
 // Pure statistics + presentation helpers. Imported by both the dashboard
 // (in the browser) and the unit tests (in Node). No DOM, no I/O.
 
+// Contractual conformity threshold for line L1 (Mulhouse–Bâle, our line):
+// 5 min 59 s. We floor delays to whole minutes, so a train is "non-conforming"
+// (late, in the contractual sense) at >= 6 min, or if cancelled. The other 10
+// Grand Est zones use 2'59" (=> 3 min) — change here if tracking another line.
+export const LATE_THRESHOLD = 6;
+
 /**
  * Classify a row for colour-coding.
  * @returns {'cancelled'|'late-heavy'|'late-light'|'ontime'}
@@ -9,7 +15,7 @@ export function rowCategory(obs) {
   if (obs.cancelled) return 'cancelled';
   const d = obs.arrivalDelay;
   if (d == null) return 'ontime';
-  if (d >= 5) return 'late-heavy';
+  if (d >= LATE_THRESHOLD) return 'late-heavy';
   if (d >= 1) return 'late-light';
   return 'ontime';
 }
@@ -47,6 +53,8 @@ const positive = (d) => (typeof d === 'number' && d > 0 ? d : 0);
 /**
  * Aggregate delay statistics over a list of observations.
  * "Accumulated delay" sums only positive arrival delays (early trains count 0).
+ * Conformity follows the contract: a train is conforming if it ran and arrived
+ * less than LATE_THRESHOLD minutes late.
  */
 export function computeStats(observations) {
   const total = observations.length;
@@ -57,9 +65,11 @@ export function computeStats(observations) {
   const delays = ran.map((o) => positive(o.arrivalDelay));
   const accumulatedDelay = delays.reduce((a, b) => a + b, 0);
   const late = ran.filter((o) => o.arrivalDelay >= 1).length;
-  const late5 = ran.filter((o) => o.arrivalDelay >= 5).length;
-  const lateUnder5 = late - late5;
+  const lateMajor = ran.filter((o) => o.arrivalDelay >= LATE_THRESHOLD).length;
+  const lateMinor = late - lateMajor;
   const onTime = ranCount - late;
+  // Contractual "conforme": ran AND arrived < threshold late.
+  const conforming = ranCount - lateMajor;
 
   let worst = null;
   for (const o of ran) {
@@ -74,22 +84,25 @@ export function computeStats(observations) {
     ran: ranCount,
     onTime,
     late,
-    late5,
-    lateUnder5,
+    lateMajor,
+    lateMinor,
+    conforming,
     accumulatedDelay,
     averageDelay: ranCount > 0 ? Math.round((accumulatedDelay / ranCount) * 10) / 10 : 0,
     maxDelay: worst ? worst.arrivalDelay : 0,
     worst,
     // Mutually-exclusive buckets as a share of all observed trains; these four
-    // (on time / late <5 / late ≥5 / cancelled) sum to ~100%.
+    // (on time / late <thr / late ≥thr / cancelled) sum to ~100%.
     pctOnTime: pct(onTime, total),
-    pctLateUnder5: pct(lateUnder5, total),
-    pctLate5: pct(late5, total),
+    pctLateMinor: pct(lateMinor, total),
+    pctLateMajor: pct(lateMajor, total),
     pctCancelled: pct(cancelled, total),
     pctLate: pct(late, total),
-    // "not on time as planned" = late or cancelled, over all scheduled trains
+    // Contractual conformity rate (our sample): not late ≥threshold and not cancelled.
+    pctConformity: pct(conforming, total),
+    // "not on time as planned" = any late or cancelled, over all scheduled trains.
     pctDisrupted: pct(late + cancelled, total),
-    // the commute-ruining cases: ≥5 min late OR cancelled. Drives the ranking.
-    pctSeriouslyDisrupted: pct(late5 + cancelled, total),
+    // Non-conforming = ≥threshold late OR cancelled. Drives the ranking.
+    pctSeriouslyDisrupted: pct(lateMajor + cancelled, total),
   };
 }
