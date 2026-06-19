@@ -1,6 +1,6 @@
 // Cache-bust the module import so a redeploy of stats.js is picked up
 // immediately (ES module imports are otherwise cached aggressively).
-const { computeStats, rowCategory, classifyByTrain } = await import(`./stats.js?v=${Date.now()}`);
+const { computeStats, rowCategory, classifyByTrain, causeBreakdown } = await import(`./stats.js?v=${Date.now()}`);
 
 const PERIOD_FR = { morning: 'Matin', evening: 'Soir' };
 const WEEKDAY_FR = {
@@ -90,6 +90,28 @@ function renderRanking(observations) {
     + rankingTable(TITLE_FR.evening, evening);
 }
 
+function renderCauses(observations) {
+  const el = document.getElementById('causes');
+  if (!el) return;
+  const breakdown = causeBreakdown(observations);
+  if (breakdown.length === 0) {
+    el.innerHTML = '<p class="hint">Aucune cause identifiée dans les données disponibles.</p>';
+    return;
+  }
+  const total = observations.length;
+  const rows = breakdown.map((c) => {
+    const pct = Math.round((c.count / total) * 100);
+    const parts = [];
+    if (c.cancelled) parts.push(`${c.cancelled} suppression${c.cancelled > 1 ? 's' : ''}`);
+    if (c.delayed) parts.push(`${c.delayed} retard${c.delayed > 1 ? 's' : ''}`);
+    return `<tr><td>${c.cause}</td><td>${c.count}</td><td>${pct}%</td><td class="hint">${parts.join(', ')}</td></tr>`;
+  }).join('');
+  el.innerHTML = `<table class="causes-table">
+    <thead><tr><th>Cause</th><th>Trains impactés</th><th>% du total</th><th>Détail</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
 function renderTable(observations) {
   document.getElementById('rows').innerHTML = observations.map((o) => `
     <tr class="${rowCategory(o)}">
@@ -98,6 +120,7 @@ function renderTable(observations) {
       <td>${time(o.scheduledDeparture)}</td><td>${time(o.actualDeparture)}</td>
       <td>${time(o.scheduledArrival)}</td><td>${time(o.actualArrival)}</td>
       <td class="delay">${delayLabel(o)}</td>
+      <td>${o.cause || '—'}</td>
     </tr>`).join('');
 }
 
@@ -167,6 +190,7 @@ function applyFilters() {
 
   renderStats(filtered);
   renderRanking(filtered);
+  renderCauses(filtered);
   renderTable(filtered);
 
   const scope = filtered.length === ALL.length ? `${ALL.length}` : `${filtered.length} / ${ALL.length}`;
@@ -183,7 +207,7 @@ async function main() {
     populateFilters();
     applyFilters();
   } catch (err) {
-    document.getElementById('rows').innerHTML = `<tr><td colspan="10">Échec du chargement des données : ${err.message}</td></tr>`;
+    document.getElementById('rows').innerHTML = `<tr><td colspan="11">Échec du chargement des données : ${err.message}</td></tr>`;
   }
 }
 

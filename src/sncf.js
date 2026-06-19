@@ -11,11 +11,20 @@ import { API_BASE } from './config.js';
  * Reduce a raw Navitia /journeys response to the fields we care about.
  * Pure function — unit tested against real API fixtures.
  *
- * @returns {Array<{train:string,status:string,
+ * @returns {Array<{train:string,status:string,cause:string|null,
  *   origin:{name:string,baseDeparture:string,departure:string},
  *   destination:{name:string,baseArrival:string,arrival:string}}>}
  */
 export function parseJourneysResponse(json) {
+  // Build a Map from disruption id to human-readable cause text.
+  const disruptions = (json && json.disruptions) || [];
+  const causeMap = new Map();
+  for (const d of disruptions) {
+    if (d.id && d.messages && d.messages[0] && d.messages[0].text) {
+      causeMap.set(d.id, d.messages[0].text);
+    }
+  }
+
   const journeys = (json && json.journeys) || [];
   const out = [];
   for (const journey of journeys) {
@@ -26,9 +35,15 @@ export function parseJourneysResponse(json) {
     const di = first.display_informations || {};
     const originStop = first.stop_date_times[0];
     const destStop = last.stop_date_times[last.stop_date_times.length - 1];
+
+    // Look for a disruption link in display_informations.links.
+    const disruptionLink = (di.links || []).find((l) => l.rel === 'disruptions');
+    const cause = (disruptionLink && causeMap.get(disruptionLink.id)) || null;
+
     out.push({
       train: [di.commercial_mode, di.headsign].filter(Boolean).join(' ') || di.label || '',
       status: journey.status || '',
+      cause,
       origin: {
         name: originStop.stop_point.name,
         baseDeparture: originStop.base_departure_date_time || '',

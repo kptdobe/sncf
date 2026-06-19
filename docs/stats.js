@@ -106,3 +106,21 @@ export function computeStats(observations) {
     pctSeriouslyDisrupted: pct(lateMajor + cancelled, total),
   };
 }
+
+/**
+ * Group observations that have a known cause by that cause string.
+ * Returns entries sorted by count descending.
+ * @returns {Array<{cause:string, count:number, cancelled:number, delayed:number}>}
+ */
+export function causeBreakdown(observations) {
+  const map = new Map();
+  for (const o of observations) {
+    if (!o.cause) continue;
+    if (!map.has(o.cause)) map.set(o.cause, { cause: o.cause, count: 0, cancelled: 0, delayed: 0 });
+    const entry = map.get(o.cause);
+    entry.count += 1;
+    if (o.cancelled) entry.cancelled += 1;
+    else entry.delayed += 1;
+  }
+  return [...map.values()].sort((a, b) => b.count - a.count);
+}

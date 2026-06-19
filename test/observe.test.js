@@ -9,11 +9,12 @@ const nav = (hhmm) => `20260609T${hhmm.replace(':', '')}00`;
 // Build a simplified journey in the shape parseJourneysResponse returns.
 function sj({
   dep = '07:32', depRt, arr = '07:50', arrRt, status = '', train = 'FLUO 96109',
-  origin = 'Sierentz', dest = 'Basel SBB',
+  origin = 'Sierentz', dest = 'Basel SBB', cause = null,
 } = {}) {
   return {
     train,
     status,
+    cause,
     origin: { name: origin, baseDeparture: nav(dep), departure: nav(depRt ?? dep) },
     destination: { name: dest, baseArrival: nav(arr), arrival: nav(arrRt ?? arr) },
   };
@@ -98,4 +99,35 @@ test('not scheduled that day → no observation', () => {
     realtimeJourneys: [],
   });
   assert.equal(obs, null);
+});
+
+test('cause is propagated from realtime journey to observation', () => {
+  const obs = buildObservation({
+    train: MORNING,
+    date: '2026-06-09',
+    baseJourneys: [sj()],
+    realtimeJourneys: [sj({ depRt: '07:52', arrRt: '08:10', status: 'SIGNIFICANT_DELAYS', cause: 'Réutilisation d\'un train' })],
+  });
+  assert.equal(obs.cause, 'Réutilisation d\'un train');
+});
+
+test('cause is null for on-time train', () => {
+  const obs = buildObservation({
+    train: MORNING,
+    date: '2026-06-09',
+    baseJourneys: [sj()],
+    realtimeJourneys: [sj()],
+  });
+  assert.equal(obs.cause, null);
+});
+
+test('cause is null when train is absent from realtime (cancelled)', () => {
+  const obs = buildObservation({
+    train: MORNING,
+    date: '2026-06-09',
+    baseJourneys: [sj()],
+    realtimeJourneys: [],
+  });
+  assert.equal(obs.cancelled, true);
+  assert.equal(obs.cause, null);
 });

@@ -59,6 +59,8 @@ export function buildObservation({ train, date, baseJourneys, realtimeJourneys }
     status: cancelled ? 'NO_SERVICE' : rt.status,
   };
 
+  obs.cause = (rt && rt.cause) || null;
+
   if (!cancelled) {
     obs.actualDeparture = toIso(rt.origin.departure);
     obs.actualArrival = toIso(rt.destination.arrival);

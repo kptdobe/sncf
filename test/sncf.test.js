@@ -17,6 +17,7 @@ test('parseJourneysResponse extracts origin/destination from a real realtime res
   assert.equal(j.destination.arrival, '20260609T081000');
   assert.equal(j.status, 'SIGNIFICANT_DELAYS');
   assert.match(j.train, /96109/);
+  assert.equal(j.cause, 'Réutilisation d\'un train');
 });
 
 test('parseJourneysResponse on base schedule has equal base/realtime times', async () => {
@@ -86,4 +87,17 @@ test('fetchJourneys does not retry date_out_of_bounds', async () => {
   const result = await fetchJourneys({ token: 't', fromId: 'a', toId: 'b', datetime: 'd', fetchImpl, retries: 2, retryDelayMs: 0 });
   assert.deepEqual(result, []);
   assert.equal(calls, 1);
+});
+
+test('parseJourneysResponse returns null cause for on-time journey without disruption link', async () => {
+  const journeys = parseJourneysResponse(await fixture('morning-realtime.json'));
+  const onTime = journeys.find((j) => j.status === '');
+  assert.ok(onTime, 'expected an on-time journey');
+  assert.equal(onTime.cause, null);
+});
+
+test('parseJourneysResponse returns null cause when disruptions array is absent', () => {
+  const json = { journeys: [{ sections: [], status: '' }] };
+  const result = parseJourneysResponse(json);
+  assert.deepEqual(result, []); // no pt sections → skipped
 });

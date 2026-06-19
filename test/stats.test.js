@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { computeStats, rowCategory, classifyByTrain } from '../docs/stats.js';
+import { computeStats, rowCategory, classifyByTrain, causeBreakdown } from '../docs/stats.js';
 
 const obs = (over = {}) => ({ cancelled: false, arrivalDelay: 0, ...over });
 
@@ -85,4 +85,28 @@ test('classifyByTrain groups by train and ranks most reliable first', () => {
   assert.equal(ranked[0].stats.pctSeriouslyDisrupted, 0);
   assert.equal(ranked[2].stats.pctSeriouslyDisrupted, 100); // 07:32 always >=6 late
   assert.equal(ranked[2].stats.averageDelay, 15); // 07:32 worst
+});
+
+test('causeBreakdown returns empty array when no observations have a cause', () => {
+  const obs = [{ cancelled: false, arrivalDelay: 0, cause: null }, { cancelled: true, cause: null }];
+  assert.deepEqual(causeBreakdown(obs), []);
+});
+
+test('causeBreakdown groups by cause sorted by count descending', () => {
+  const obs = [
+    { cancelled: false, arrivalDelay: 10, cause: 'Panne' },
+    { cancelled: true, cause: 'Travaux' },
+    { cancelled: false, arrivalDelay: 5, cause: 'Panne' },
+    { cancelled: false, arrivalDelay: 0, cause: null },
+  ];
+  const result = causeBreakdown(obs);
+  assert.equal(result.length, 2);
+  assert.equal(result[0].cause, 'Panne');
+  assert.equal(result[0].count, 2);
+  assert.equal(result[0].cancelled, 0);
+  assert.equal(result[0].delayed, 2);
+  assert.equal(result[1].cause, 'Travaux');
+  assert.equal(result[1].count, 1);
+  assert.equal(result[1].cancelled, 1);
+  assert.equal(result[1].delayed, 0);
 });

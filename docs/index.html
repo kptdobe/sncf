@@ -45,6 +45,12 @@
   </section>
 
   <section>
+    <h2>Causes de perturbation</h2>
+    <p class="hint">Causes communiquées par l'API SNCF pour les retards et suppressions. Les observations de l'archive suisse (matin) et des données sans incident n'ont pas de cause.</p>
+    <div id="causes"></div>
+  </section>
+
+  <section>
     <h2>Tous les trajets</h2>
     <div class="legend">
       <span class="swatch ontime"></span> à l'heure
@@ -59,9 +65,10 @@
           <th>Départ prévu</th><th>Départ réel</th>
           <th>Arrivée prévue</th><th>Arrivée réelle</th>
           <th>Retard à l'arrivée</th>
+          <th>Cause</th>
         </tr>
       </thead>
-      <tbody id="rows"><tr><td colspan="10">Chargement…</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="11">Chargement…</td></tr></tbody>
     </table>
     <p class="hint"><b>≈</b> Les lignes du soir issues de l'historique indiquent le retard mesuré au
       <b>départ de Basel SBB</b> — une approximation, car l'arrivée à Sierentz (France) n'est enregistrée dans aucune
