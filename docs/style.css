@@ -18,8 +18,11 @@ body {
 }
 
 header h1 { margin: 0 0 .25rem; font-size: 1.6rem; }
-.lead { color: var(--muted); margin: 0 0 1.5rem; max-width: 70ch; line-height: 1.5; }
+.lead { color: var(--muted); margin: 0 0 .5rem; max-width: 70ch; line-height: 1.5; }
 #meta { display: block; margin-top: .25rem; font-size: .85rem; }
+#run-status { font-size: .8rem; margin: 0 0 1rem; }
+#run-status.run-ok { color: #1b8a4b; }
+#run-status.run-failed { color: var(--cancelled); }
 
 .filters { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.25rem; }
 .filters label { font-size: .85rem; color: var(--muted); display: flex; gap: .4rem; align-items: center; }

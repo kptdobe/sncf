@@ -24,6 +24,7 @@ import {
   navitiaDay, isoWeekKey, isWeekday, dateRange, addDays,
 } from './datetime.js';
 import { readWeek, writeWeek, mergeObservations, writeManifest } from './storage.js';
+import { recordRun } from './run-status.js';
 
 function parisToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date());
@@ -98,44 +99,62 @@ async function main() {
   if (!token) throw new Error('SNCF_API_TOKEN is not set (see .env.example).');
 
   const dates = resolveDates(opts);
-  const tasks = [];
-  for (const date of dates) for (const train of TRAINS) tasks.push({ date, train });
+  let observations = [];
+  let runError = null;
 
-  const collected = [];
-  await processQueue(tasks, async ({ date, train }) => {
-    const obs = await collectOne(token, date, train);
-    if (obs) collected.push(obs);
-  }, 5);
+  try {
+    const tasks = [];
+    for (const date of dates) for (const train of TRAINS) tasks.push({ date, train });
 
-  // Drop trains that have not completed their journey yet (their delay is not real).
-  const observations = selectCompleted(collected, parisNowIso());
-  const skipped = collected.length - observations.length;
-  if (skipped > 0) console.log(`(skipping ${skipped} train(s) that have not run yet)`);
+    const collected = [];
+    await processQueue(tasks, async ({ date, train }) => {
+      const obs = await collectOne(token, date, train);
+      if (obs) collected.push(obs);
+    }, 5);
 
-  observations.sort((a, b) => (a.scheduledDeparture < b.scheduledDeparture ? -1 : 1));
+    // Drop trains that have not completed their journey yet (their delay is not real).
+    observations = selectCompleted(collected, parisNowIso());
+    const skipped = collected.length - observations.length;
+    if (skipped > 0) console.log(`(skipping ${skipped} train(s) that have not run yet)`);
 
-  console.log(`\nCollected ${observations.length} observation(s) over ${dates.length} day(s):\n`);
-  for (const o of observations) console.log(`  ${describe(o)}`);
+    observations.sort((a, b) => (a.scheduledDeparture < b.scheduledDeparture ? -1 : 1));
 
-  if (!opts.execute) {
-    console.log('\n(dry-run) Nothing written. Re-run with -x to persist.\n');
-    return;
+    console.log(`\nCollected ${observations.length} observation(s) over ${dates.length} day(s):\n`);
+    for (const o of observations) console.log(`  ${describe(o)}`);
+
+    if (!opts.execute) {
+      console.log('\n(dry-run) Nothing written. Re-run with -x to persist.\n');
+      return;
+    }
+
+    const byWeek = new Map();
+    for (const o of observations) {
+      const wk = isoWeekKey(o.date);
+      if (!byWeek.has(wk)) byWeek.set(wk, []);
+      byWeek.get(wk).push(o);
+    }
+    for (const [wk, incoming] of byWeek) {
+      const existing = await readWeek(wk);
+      const merged = mergeObservations(existing.observations || [], incoming);
+      await writeWeek(wk, { week: wk, observations: merged });
+      console.log(`  wrote docs/data/${wk}.json (${merged.length} total)`);
+    }
+    const manifest = await writeManifest();
+    console.log(`\nWrote manifest: ${manifest.weeks.length} week(s), ${manifest.observationCount} observation(s).\n`);
+  } catch (err) {
+    runError = err;
+    throw err;
+  } finally {
+    if (opts.execute) {
+      const status = runError ? 'failed' : 'success';
+      await recordRun({
+        status,
+        ...(runError
+          ? { error: runError.message }
+          : { observations: observations.length, dates }),
+      }).catch((e) => console.warn(`Warning: could not write run status: ${e.message}`));
+    }
   }
-
-  const byWeek = new Map();
-  for (const o of observations) {
-    const wk = isoWeekKey(o.date);
-    if (!byWeek.has(wk)) byWeek.set(wk, []);
-    byWeek.get(wk).push(o);
-  }
-  for (const [wk, incoming] of byWeek) {
-    const existing = await readWeek(wk);
-    const merged = mergeObservations(existing.observations || [], incoming);
-    await writeWeek(wk, { week: wk, observations: merged });
-    console.log(`  wrote docs/data/${wk}.json (${merged.length} total)`);
-  }
-  const manifest = await writeManifest();
-  console.log(`\nWrote manifest: ${manifest.weeks.length} week(s), ${manifest.observationCount} observation(s).\n`);
 }
 
 main().catch((err) => { console.error(`Error: ${err.message}`); process.exit(1); });

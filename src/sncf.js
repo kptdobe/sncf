@@ -51,10 +51,14 @@ export function authHeader(token) {
 
 /**
  * Fetch direct journeys between two stop areas at a given datetime.
+ * Retries up to `retries` times on transient errors (network failures, 401, 5xx).
  * @returns simplified journeys (see parseJourneysResponse). Empty array if the
  *   date is outside the API's rolling window.
  */
-export async function fetchJourneys({ token, fromId, toId, datetime, freshness = 'realtime', fetchImpl = fetch }) {
+export async function fetchJourneys({
+  token, fromId, toId, datetime, freshness = 'realtime', fetchImpl = fetch,
+  retries = 2, retryDelayMs = 1000,
+}) {
   const params = new URLSearchParams({
     from: fromId,
     to: toId,
@@ -64,13 +68,26 @@ export async function fetchJourneys({ token, fromId, toId, datetime, freshness =
     count: '3',
     disable_geojson: 'true',
   });
-  const res = await fetchImpl(`${API_BASE}/journeys?${params}`, {
-    headers: { Authorization: authHeader(token) },
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    if (body.error && body.error.id === 'date_out_of_bounds') return [];
-    throw new Error(`SNCF API ${res.status}: ${body.error ? body.error.message : res.statusText}`);
+
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (attempt > 0) {
+      await new Promise((r) => setTimeout(r, retryDelayMs * attempt));
+      console.warn(`[sncf] retry ${attempt}/${retries} (${freshness} at ${datetime})`);
+    }
+    try {
+      const res = await fetchImpl(`${API_BASE}/journeys?${params}`, {
+        headers: { Authorization: authHeader(token) },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        if (body.error && body.error.id === 'date_out_of_bounds') return [];
+        throw new Error(`SNCF API ${res.status}: ${body.error ? body.error.message : res.statusText}`);
+      }
+      return parseJourneysResponse(await res.json());
+    } catch (err) {
+      lastError = err;
+    }
   }
-  return parseJourneysResponse(await res.json());
+  throw lastError;
 }

@@ -35,3 +35,55 @@ test('parseJourneysResponse tolerates empty/missing input', () => {
 test('authHeader builds Basic auth with empty password', () => {
   assert.equal(authHeader('mytoken'), `Basic ${Buffer.from('mytoken:').toString('base64')}`);
 });
+
+// fetchJourneys retry behaviour
+
+const { fetchJourneys } = await import('../src/sncf.js');
+
+test('fetchJourneys succeeds on first attempt without retrying', async () => {
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls += 1;
+    return { ok: true, json: async () => ({ journeys: [] }) };
+  };
+  const result = await fetchJourneys({ token: 't', fromId: 'a', toId: 'b', datetime: 'd', fetchImpl, retryDelayMs: 0 });
+  assert.deepEqual(result, []);
+  assert.equal(calls, 1);
+});
+
+test('fetchJourneys retries on error and succeeds on third attempt', async () => {
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls += 1;
+    if (calls < 3) throw new Error('transient network error');
+    return { ok: true, json: async () => ({ journeys: [] }) };
+  };
+  const result = await fetchJourneys({ token: 't', fromId: 'a', toId: 'b', datetime: 'd', fetchImpl, retryDelayMs: 0 });
+  assert.deepEqual(result, []);
+  assert.equal(calls, 3);
+});
+
+test('fetchJourneys fails after exhausting all retries', async () => {
+  let calls = 0;
+  const fetchImpl = async () => { calls += 1; throw new Error('always fails'); };
+  await assert.rejects(
+    () => fetchJourneys({ token: 't', fromId: 'a', toId: 'b', datetime: 'd', fetchImpl, retries: 2, retryDelayMs: 0 }),
+    /always fails/,
+  );
+  assert.equal(calls, 3); // 1 initial + 2 retries
+});
+
+test('fetchJourneys does not retry date_out_of_bounds', async () => {
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls += 1;
+    return {
+      ok: false,
+      statusText: 'Bad Request',
+      json: async () => ({ error: { id: 'date_out_of_bounds', message: 'out of bounds' } }),
+    };
+  };
+  const result = await fetchJourneys({ token: 't', fromId: 'a', toId: 'b', datetime: 'd', fetchImpl, retries: 2, retryDelayMs: 0 });
+  assert.deepEqual(result, []);
+  assert.equal(calls, 1);
+});

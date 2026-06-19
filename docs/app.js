@@ -12,13 +12,14 @@ const TITLE_FR = { morning: 'Matin → Basel SBB', evening: 'Soir → Sierentz' 
 
 async function loadObservations() {
   const manifest = await fetch(`./data/manifest.json?t=${Date.now()}`).then((r) => r.json());
-  const weeks = await Promise.all(
-    manifest.weeks.map((w) => fetch(`./data/${w}.json?t=${Date.now()}`).then((r) => r.json())),
-  );
+  const [weeks, runStatus] = await Promise.all([
+    Promise.all(manifest.weeks.map((w) => fetch(`./data/${w}.json?t=${Date.now()}`).then((r) => r.json()))),
+    fetch(`./data/run-status.json?t=${Date.now()}`).then((r) => r.json()).catch(() => null),
+  ]);
   const observations = weeks.flatMap((w) => w.observations || []);
   // Plus récent en premier.
   observations.sort((a, b) => (a.scheduledDeparture < b.scheduledDeparture ? 1 : -1));
-  return { observations, manifest };
+  return { observations, manifest, runStatus };
 }
 
 const time = (iso) => (iso ? iso.slice(11, 16) : '—');
@@ -101,6 +102,25 @@ function renderTable(observations) {
 }
 
 const WEEKDAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const fmt = (iso) => (iso ? new Date(iso).toLocaleString('fr-FR') : '—');
+
+function renderRunStatus(runStatus) {
+  const el = document.getElementById('run-status');
+  if (!el || !runStatus) return;
+  const { runs, lastSuccessAt, lastFailedAt } = runStatus;
+  const last = runs && runs[0];
+  if (!last) return;
+  if (last.status === 'failed') {
+    el.className = 'run-failed';
+    const obs = lastSuccessAt ? ` · dernière réussie : ${fmt(lastSuccessAt)}` : '';
+    el.innerHTML = `⚠ Collecte échouée le ${fmt(last.timestamp)}${last.error ? ` — ${last.error}` : ''}${obs}`;
+  } else {
+    el.className = 'run-ok';
+    const failNote = lastFailedAt && lastFailedAt > lastSuccessAt ? ` · précédente échouée : ${fmt(lastFailedAt)}` : '';
+    el.innerHTML = `Collecte réussie le ${fmt(lastSuccessAt)} (${last.observations} obs.)${failNote}`;
+  }
+}
+
 let ALL = [];
 let LAST_UPDATED = 'inconnue';
 
@@ -155,10 +175,11 @@ function applyFilters() {
 
 async function main() {
   try {
-    const { observations, manifest } = await loadObservations();
+    const { observations, manifest, runStatus } = await loadObservations();
     ALL = observations;
     LAST_UPDATED = manifest.lastUpdated
       ? new Date(manifest.lastUpdated).toLocaleString('fr-FR') : 'inconnue';
+    renderRunStatus(runStatus);
     populateFilters();
     applyFilters();
   } catch (err) {

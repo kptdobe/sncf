@@ -2,9 +2,9 @@ name: Collect train delays
 
 on:
   schedule:
-    # 18:00 UTC ≈ 20:00 Paris (summer) / 19:00 (winter), Monday–Friday.
-    # Runs after the evening train so both that day's trains are still in the
-    # SNCF realtime window (which only retains realized delays ~2 days).
+    # 08:00 UTC ≈ 10:00 Paris (summer CEST) — after the last morning train completes.
+    - cron: '0 8 * * 1-5'
+    # 18:00 UTC ≈ 20:00 Paris (summer CEST) — after the last evening train completes.
     - cron: '0 18 * * 1-5'
   workflow_dispatch: {}
 
@@ -28,10 +28,12 @@ jobs:
 
       - run: npm ci
 
-      - name: Collect today's observations
+      - name: Collect observations (last 2 days)
+        id: collect
+        continue-on-error: true
         env:
           SNCF_API_TOKEN: ${{ secrets.SNCF_API_TOKEN }}
-        run: node src/collect.js -x
+        run: node src/collect.js -x -b 2
 
       - name: Commit updated data
         run: |
