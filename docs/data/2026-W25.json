@@ -474,7 +474,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-18",
@@ -493,7 +494,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-18",
@@ -512,7 +514,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-18",
@@ -531,7 +534,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-18",
@@ -550,7 +554,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-18",
@@ -569,7 +574,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-18",
@@ -588,7 +594,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-18",
@@ -607,7 +614,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-19",
@@ -626,7 +634,8 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
     },
     {
       "date": "2026-06-19",
@@ -645,7 +654,128 @@
       "departureDelay": 0,
       "arrivalDelay": 0,
       "cancelled": false,
-      "status": ""
+      "status": "",
+      "cause": null
+    },
+    {
+      "date": "2026-06-19",
+      "weekday": "Friday",
+      "trainId": "m0802",
+      "period": "morning",
+      "label": "08:02",
+      "direction": "Sierentz → Basel SBB",
+      "origin": "Sierentz",
+      "destination": "Basel SBB",
+      "trainNumber": "FLUO 96111",
+      "scheduledDeparture": "2026-06-19T08:02:00",
+      "scheduledArrival": "2026-06-19T08:20:00",
+      "actualDeparture": "2026-06-19T08:02:00",
+      "actualArrival": "2026-06-19T08:20:00",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "cancelled": false,
+      "status": "",
+      "cause": null
+    },
+    {
+      "date": "2026-06-19",
+      "weekday": "Friday",
+      "trainId": "m0832",
+      "period": "morning",
+      "label": "08:32",
+      "direction": "Sierentz → Basel SBB",
+      "origin": "Sierentz",
+      "destination": "Basel SBB",
+      "trainNumber": "FLUO 96113",
+      "scheduledDeparture": "2026-06-19T08:32:00",
+      "scheduledArrival": "2026-06-19T08:50:00",
+      "actualDeparture": "2026-06-19T08:32:00",
+      "actualArrival": "2026-06-19T08:50:00",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "cancelled": false,
+      "status": "",
+      "cause": null
+    },
+    {
+      "date": "2026-06-19",
+      "weekday": "Friday",
+      "trainId": "e1708",
+      "period": "evening",
+      "label": "17:08",
+      "direction": "Basel SBB → Sierentz",
+      "origin": "Basel SBB",
+      "destination": "Sierentz",
+      "trainNumber": "FLUO 96128",
+      "scheduledDeparture": "2026-06-19T17:08:00",
+      "scheduledArrival": "2026-06-19T17:26:00",
+      "actualDeparture": "2026-06-19T17:13:00",
+      "actualArrival": "2026-06-19T17:31:00",
+      "departureDelay": 5,
+      "arrivalDelay": 5,
+      "cancelled": false,
+      "status": "SIGNIFICANT_DELAYS",
+      "cause": "Difficulté de gestion du trafic sur le réseau ferré"
+    },
+    {
+      "date": "2026-06-19",
+      "weekday": "Friday",
+      "trainId": "e1738",
+      "period": "evening",
+      "label": "17:38",
+      "direction": "Basel SBB → Sierentz",
+      "origin": "Basel SBB",
+      "destination": "Sierentz",
+      "trainNumber": "FLUO 96130",
+      "scheduledDeparture": "2026-06-19T17:38:00",
+      "scheduledArrival": "2026-06-19T17:56:00",
+      "actualDeparture": "2026-06-19T17:38:00",
+      "actualArrival": "2026-06-19T17:56:00",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "cancelled": false,
+      "status": "",
+      "cause": null
+    },
+    {
+      "date": "2026-06-19",
+      "weekday": "Friday",
+      "trainId": "e1808",
+      "period": "evening",
+      "label": "18:08",
+      "direction": "Basel SBB → Sierentz",
+      "origin": "Basel SBB",
+      "destination": "Sierentz",
+      "trainNumber": "FLUO 96132",
+      "scheduledDeparture": "2026-06-19T18:08:00",
+      "scheduledArrival": "2026-06-19T18:26:00",
+      "actualDeparture": "2026-06-19T18:08:00",
+      "actualArrival": "2026-06-19T18:26:00",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "cancelled": false,
+      "status": "",
+      "cause": null
+    },
+    {
+      "date": "2026-06-19",
+      "weekday": "Friday",
+      "trainId": "e1838",
+      "period": "evening",
+      "label": "18:38",
+      "direction": "Basel SBB → Sierentz",
+      "origin": "Basel SBB",
+      "destination": "Sierentz",
+      "trainNumber": "FLUO 96134",
+      "scheduledDeparture": "2026-06-19T18:38:00",
+      "scheduledArrival": "2026-06-19T18:56:00",
+      "actualDeparture": "2026-06-19T18:38:00",
+      "actualArrival": "2026-06-19T18:56:00",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "cancelled": false,
+      "status": "",
+      "cause": null
     }
   ]
 }
