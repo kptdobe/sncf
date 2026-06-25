@@ -101,3 +101,11 @@ test('parseJourneysResponse returns null cause when disruptions array is absent'
   const result = parseJourneysResponse(json);
   assert.deepEqual(result, []); // no pt sections → skipped
 });
+
+test('parseJourneysResponse extracts cause for NO_SERVICE journey via section.links', async () => {
+  const journeys = parseJourneysResponse(await fixture('evening-cancelled.json'));
+  assert.equal(journeys.length, 1);
+  const j = journeys[0];
+  assert.equal(j.status, 'NO_SERVICE');
+  assert.equal(j.cause, 'Travaux sur la voie');
+});

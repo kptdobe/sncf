@@ -1,0 +1,46 @@
+{
+  "journeys": [
+    {
+      "status": "NO_SERVICE",
+      "sections": [
+        {
+          "type": "public_transport",
+          "display_informations": {
+            "commercial_mode": "FLUO",
+            "headsign": "96134",
+            "links": [
+              {"templated": false, "rel": "terminus", "internal": true, "type": "stop_area", "id": "stop_area:SNCF:87182105"}
+            ]
+          },
+          "links": [
+            {"type": "disruption", "id": "abc-cancel-001", "internal": true, "rel": "disruptions", "templated": false},
+            {"type": "vehicle_journey", "id": "vehicle_journey:SNCF:2026-06-23:96134:1187:Train"}
+          ],
+          "stop_date_times": [
+            {
+              "base_departure_date_time": "20260623T163800",
+              "departure_date_time": "20260623T163800",
+              "base_arrival_date_time": "20260623T163800",
+              "arrival_date_time": "20260623T163800",
+              "stop_point": {"name": "Basel SBB"}
+            },
+            {
+              "base_departure_date_time": "20260623T165600",
+              "departure_date_time": "20260623T165600",
+              "base_arrival_date_time": "20260623T165600",
+              "arrival_date_time": "20260623T165600",
+              "stop_point": {"name": "Sierentz"}
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "disruptions": [
+    {
+      "id": "abc-cancel-001",
+      "messages": [{"text": "Travaux sur la voie"}],
+      "severity": {"effect": "NO_SERVICE"}
+    }
+  ]
+}

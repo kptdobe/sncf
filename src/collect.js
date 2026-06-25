@@ -10,12 +10,14 @@
 //   -b N        Backfill the last N days (ending today). SNCF only retains
 //               realized delays ~2 days, so N > 2 mostly yields on-time data.
 //   -w          Include weekends (default: weekdays only).
+//   -d          Debug: dump raw API JSON responses to docs/debug/.
 //   -h          Show this help.
 //
 // Dates are "YYYY-MM-DD". With no dates and no -b, defaults to today (Europe/Paris).
 //
 // Requires SNCF_API_TOKEN (read from the environment or a local .env file).
 
+import { writeFile, mkdir } from 'node:fs/promises';
 import processQueue from '@adobe/helix-shared-process-queue';
 import { TRAINS } from './config.js';
 import { fetchJourneys } from './sncf.js';
@@ -40,12 +42,13 @@ function parisNowIso() {
 }
 
 function parseArgs(argv) {
-  const opts = { execute: false, weekends: false, backfill: 0, dates: [], help: false };
+  const opts = { execute: false, weekends: false, backfill: 0, dates: [], help: false, debug: false };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '-x') opts.execute = true;
     else if (a === '-w') opts.weekends = true;
     else if (a === '-h' || a === '--help') opts.help = true;
+    else if (a === '-d' || a === '--debug') opts.debug = true;
     else if (a === '-b') { opts.backfill = Number(argv[i + 1]); i += 1; }
     else if (/^\d{4}-\d{2}-\d{2}$/.test(a)) opts.dates.push(a);
     else throw new Error(`Unknown argument: ${a}`);
@@ -65,11 +68,20 @@ function resolveDates(opts) {
   return dates;
 }
 
-async function collectOne(token, date, train) {
+async function collectOne(token, date, train, debugDir) {
   const datetime = `${navitiaDay(date)}T${train.scheduledDeparture.replace(':', '')}00`;
+
+  function makeDebugHandler(label) {
+    if (!debugDir) return null;
+    return async (json) => {
+      const slug = `${date}-${train.id}-${label}`;
+      await writeFile(`${debugDir}/${slug}.json`, JSON.stringify(json, null, 2));
+    };
+  }
+
   const [baseJourneys, realtimeJourneys] = await Promise.all([
-    fetchJourneys({ token, fromId: train.fromId, toId: train.toId, datetime, freshness: 'base_schedule' }),
-    fetchJourneys({ token, fromId: train.fromId, toId: train.toId, datetime, freshness: 'realtime' }),
+    fetchJourneys({ token, fromId: train.fromId, toId: train.toId, datetime, freshness: 'base_schedule', onRawResponse: makeDebugHandler('base') }),
+    fetchJourneys({ token, fromId: train.fromId, toId: train.toId, datetime, freshness: 'realtime', onRawResponse: makeDebugHandler('realtime') }),
   ]);
   return buildObservation({ train, date, baseJourneys, realtimeJourneys });
 }
@@ -86,6 +98,7 @@ Usage: node src/collect.js [options] [dates...]
   -x          Execute: write the JSON files (default is dry-run).
   -b N        Backfill the last N days ending today (SNCF retains ~2 days).
   -w          Include weekends (default: weekdays only).
+  -d          Debug: dump raw API JSON responses to docs/debug/.
   -h          Show this help.
 
 Dates are "YYYY-MM-DD". With no dates and no -b, defaults to today (Europe/Paris).
@@ -102,13 +115,20 @@ async function main() {
   let observations = [];
   let runError = null;
 
+  let debugDir = null;
+  if (opts.debug) {
+    debugDir = new URL('../debug', import.meta.url).pathname;
+    await mkdir(debugDir, { recursive: true });
+    console.log(`(debug) raw responses will be written to ${debugDir}/`);
+  }
+
   try {
     const tasks = [];
     for (const date of dates) for (const train of TRAINS) tasks.push({ date, train });
 
     const collected = [];
     await processQueue(tasks, async ({ date, train }) => {
-      const obs = await collectOne(token, date, train);
+      const obs = await collectOne(token, date, train, debugDir);
       if (obs) collected.push(obs);
     }, 5);
 

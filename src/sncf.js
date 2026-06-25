@@ -36,8 +36,10 @@ export function parseJourneysResponse(json) {
     const originStop = first.stop_date_times[0];
     const destStop = last.stop_date_times[last.stop_date_times.length - 1];
 
-    // Look for a disruption link in display_informations.links.
-    const disruptionLink = (di.links || []).find((l) => l.rel === 'disruptions');
+    // Look for a disruption link in display_informations.links (delayed trains) or
+    // section.links with type=disruption (cancelled/NO_SERVICE trains).
+    const disruptionLink = (di.links || []).find((l) => l.rel === 'disruptions')
+      || (first.links || []).find((l) => l.type === 'disruption');
     const cause = (disruptionLink && causeMap.get(disruptionLink.id)) || null;
 
     out.push({
@@ -72,7 +74,7 @@ export function authHeader(token) {
  */
 export async function fetchJourneys({
   token, fromId, toId, datetime, freshness = 'realtime', fetchImpl = fetch,
-  retries = 2, retryDelayMs = 1000,
+  retries = 2, retryDelayMs = 1000, onRawResponse = null,
 }) {
   const params = new URLSearchParams({
     from: fromId,
@@ -99,7 +101,9 @@ export async function fetchJourneys({
         if (body.error && body.error.id === 'date_out_of_bounds') return [];
         throw new Error(`SNCF API ${res.status}: ${body.error ? body.error.message : res.statusText}`);
       }
-      return parseJourneysResponse(await res.json());
+      const json = await res.json();
+      if (onRawResponse) onRawResponse(json);
+      return parseJourneysResponse(json);
     } catch (err) {
       lastError = err;
     }
