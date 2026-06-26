@@ -4,8 +4,10 @@ on:
   schedule:
     # 08:00 UTC ≈ 10:00 Paris (summer CEST) — after the last morning train completes.
     - cron: '0 8 * * 1-5'
-    # 18:00 UTC ≈ 20:00 Paris (summer CEST) — after the last evening train completes.
-    - cron: '0 18 * * 1-5'
+    # 17:00 UTC ≈ 19:00 Paris (summer CEST) — ~4 min after the last evening train completes; captures fresh delay data.
+    - cron: '0 17 * * 1-5'
+    # 19:00 UTC ≈ 21:00 Paris (summer CEST) — second pass to confirm/complete any missed observations.
+    - cron: '0 19 * * 1-5'
   workflow_dispatch: {}
 
 permissions:
