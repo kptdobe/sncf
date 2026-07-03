@@ -1,6 +1,15 @@
 {
   "runs": [
     {
+      "timestamp": "2026-07-03T20:12:57.161Z",
+      "status": "success",
+      "observations": 16,
+      "dates": [
+        "2026-07-02",
+        "2026-07-03"
+      ]
+    },
+    {
       "timestamp": "2026-07-03T18:08:33.299Z",
       "status": "success",
       "observations": 16,
@@ -163,17 +172,8 @@
       "timestamp": "2026-06-25T10:39:10.399Z",
       "status": "failed",
       "error": "SNCF API 403: FORBIDDEN"
-    },
-    {
-      "timestamp": "2026-06-24T19:56:42.306Z",
-      "status": "success",
-      "observations": 16,
-      "dates": [
-        "2026-06-23",
-        "2026-06-24"
-      ]
     }
   ],
-  "lastSuccessAt": "2026-07-03T18:08:33.299Z",
+  "lastSuccessAt": "2026-07-03T20:12:57.161Z",
   "lastFailedAt": "2026-06-25T10:39:10.399Z"
 }
