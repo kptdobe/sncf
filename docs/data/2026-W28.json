@@ -1,0 +1,45 @@
+{
+  "week": "2026-W28",
+  "observations": [
+    {
+      "date": "2026-07-06",
+      "weekday": "Monday",
+      "trainId": "m0732",
+      "period": "morning",
+      "label": "07:32",
+      "direction": "Sierentz → Basel SBB",
+      "origin": "Sierentz",
+      "destination": "Basel SBB",
+      "trainNumber": "FLUO 96109",
+      "scheduledDeparture": "2026-07-06T07:32:00",
+      "scheduledArrival": "2026-07-06T07:50:00",
+      "actualDeparture": "2026-07-06T07:32:00",
+      "actualArrival": "2026-07-06T07:50:00",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "cancelled": false,
+      "status": "",
+      "cause": null
+    },
+    {
+      "date": "2026-07-06",
+      "weekday": "Monday",
+      "trainId": "m0802",
+      "period": "morning",
+      "label": "08:02",
+      "direction": "Sierentz → Basel SBB",
+      "origin": "Sierentz",
+      "destination": "Basel SBB",
+      "trainNumber": "FLUO 96111",
+      "scheduledDeparture": "2026-07-06T08:02:00",
+      "scheduledArrival": "2026-07-06T08:20:00",
+      "actualDeparture": "2026-07-06T08:02:00",
+      "actualArrival": "2026-07-06T08:20:00",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "cancelled": false,
+      "status": "",
+      "cause": null
+    }
+  ]
+}
