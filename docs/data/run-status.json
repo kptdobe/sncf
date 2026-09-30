@@ -1,6 +1,15 @@
 {
   "runs": [
     {
+      "timestamp": "2026-09-30T21:08:43.181Z",
+      "status": "success",
+      "observations": 16,
+      "dates": [
+        "2026-09-29",
+        "2026-09-30"
+      ]
+    },
+    {
       "timestamp": "2026-09-30T14:33:23.670Z",
       "status": "success",
       "observations": 12,
@@ -169,17 +178,8 @@
         "2026-09-21",
         "2026-09-22"
       ]
-    },
-    {
-      "timestamp": "2026-09-21T22:25:08.644Z",
-      "status": "success",
-      "observations": 8,
-      "dates": [
-        "2026-09-21",
-        "2026-09-22"
-      ]
     }
   ],
-  "lastSuccessAt": "2026-09-30T14:33:23.670Z",
+  "lastSuccessAt": "2026-09-30T21:08:43.181Z",
   "lastFailedAt": "2026-06-25T10:39:10.399Z"
 }
