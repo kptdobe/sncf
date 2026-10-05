@@ -140,6 +140,26 @@
       "cancelled": false,
       "status": "",
       "cause": null
+    },
+    {
+      "date": "2026-10-05",
+      "weekday": "Monday",
+      "trainId": "e1838",
+      "period": "evening",
+      "label": "18:38",
+      "direction": "Basel SBB → Sierentz",
+      "origin": "Basel SBB",
+      "destination": "Sierentz",
+      "trainNumber": "FLUO 96134",
+      "scheduledDeparture": "2026-10-05T18:38:00",
+      "scheduledArrival": "2026-10-05T18:56:00",
+      "actualDeparture": "2026-10-05T18:38:00",
+      "actualArrival": "2026-10-05T18:56:00",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "cancelled": false,
+      "status": "",
+      "cause": null
     }
   ]
 }
