@@ -1,10 +1,9 @@
 // Pure business logic: turn scheduled + realtime journeys into one observation.
 //
 // Cancellation handling:
-//  - If the train is absent from the *base* (theoretical) schedule for that
-//    day, it simply does not run (weekend / holiday): we emit no observation.
-//  - If it is scheduled but absent from realtime, or realtime reports the
-//    journey-level status "NO_SERVICE", it was cancelled.
+//  - Configured trains missing from realtime, even from the theoretical
+//    schedule too, are cancelled. Use configured times when both are absent.
+//  - Realtime journey-level status "NO_SERVICE" also means cancelled.
 
 import {
   delayMinutes, toIso, hhmm, weekdayName,
@@ -30,13 +29,12 @@ export function selectCompleted(observations, nowLocalIso) {
  * @param {string} args.date        "YYYY-MM-DD"
  * @param {Array}  args.baseJourneys      parsed base_schedule journeys
  * @param {Array}  args.realtimeJourneys  parsed realtime journeys
- * @returns {object|null} observation, or null if the train does not run that day
+ * @returns {object} observation
  */
 export function buildObservation({ train, date, baseJourneys, realtimeJourneys }) {
   const base = matchByDeparture(baseJourneys, train.scheduledDeparture);
-  if (!base) return null; // not scheduled to run on this day
-
   const rt = matchByDeparture(realtimeJourneys, train.scheduledDeparture);
+  const scheduled = base || rt;
   const cancelled = !rt || rt.status === 'NO_SERVICE';
 
   const obs = {
@@ -48,9 +46,13 @@ export function buildObservation({ train, date, baseJourneys, realtimeJourneys }
     direction: train.direction,
     origin: train.originName,
     destination: train.destinationName,
-    trainNumber: (rt || base).train,
-    scheduledDeparture: toIso(base.origin.baseDeparture),
-    scheduledArrival: toIso(base.destination.baseArrival),
+    trainNumber: (rt || base)?.train ?? null,
+    scheduledDeparture: scheduled
+      ? toIso(scheduled.origin.baseDeparture)
+      : `${date}T${train.scheduledDeparture}:00`,
+    scheduledArrival: scheduled
+      ? toIso(scheduled.destination.baseArrival)
+      : `${date}T${train.scheduledArrival}:00`,
     actualDeparture: null,
     actualArrival: null,
     departureDelay: null,

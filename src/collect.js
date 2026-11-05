@@ -129,7 +129,7 @@ async function main() {
     const collected = [];
     await processQueue(tasks, async ({ date, train }) => {
       const obs = await collectOne(token, date, train, debugDir);
-      if (obs) collected.push(obs);
+      collected.push(obs);
     }, 5);
 
     // Drop trains that have not completed their journey yet (their delay is not real).

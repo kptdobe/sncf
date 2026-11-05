@@ -74,18 +74,21 @@ test('fetchJourneys fails after exhausting all retries', async () => {
   assert.equal(calls, 3); // 1 initial + 2 retries
 });
 
-test('fetchJourneys does not retry date_out_of_bounds', async () => {
+test('fetchJourneys rejects date_out_of_bounds without retrying or returning missing trains', async () => {
   let calls = 0;
   const fetchImpl = async () => {
     calls += 1;
     return {
       ok: false,
+      status: 400,
       statusText: 'Bad Request',
       json: async () => ({ error: { id: 'date_out_of_bounds', message: 'out of bounds' } }),
     };
   };
-  const result = await fetchJourneys({ token: 't', fromId: 'a', toId: 'b', datetime: 'd', fetchImpl, retries: 2, retryDelayMs: 0 });
-  assert.deepEqual(result, []);
+  await assert.rejects(
+    () => fetchJourneys({ token: 't', fromId: 'a', toId: 'b', datetime: 'd', fetchImpl, retries: 2, retryDelayMs: 0 }),
+    /SNCF API 400: out of bounds/,
+  );
   assert.equal(calls, 1);
 });
 

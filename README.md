@@ -58,9 +58,15 @@ node src/collect.js -h              # help
 Dry-run by default; pass **`-x`** to actually write files. Weekends are skipped
 unless you pass `-w`.
 
+Each configured train is expected to run on the dates being collected. Once its
+scheduled arrival has passed, missing realtime data counts as **cancelled**, even
+if the train is also absent from the theoretical schedule. When both are missing,
+the configured departure and arrival times are used; future trains are excluded.
+API request failures remain errors, not cancellations.
+
 Data is stored as **one JSON file per ISO week** under `docs/data/`
 (`2026-W24.json`, …), plus `manifest.json` which the dashboard reads first.
-Re-collecting a day overwrites that day's two entries.
+Re-collecting a train replaces its existing observation for that date.
 
 ## Dashboard
 

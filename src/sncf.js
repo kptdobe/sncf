@@ -69,8 +69,9 @@ export function authHeader(token) {
 /**
  * Fetch direct journeys between two stop areas at a given datetime.
  * Retries up to `retries` times on transient errors (network failures, 401, 5xx).
- * @returns simplified journeys (see parseJourneysResponse). Empty array if the
- *   date is outside the API's rolling window.
+ * Dates outside the API's rolling window fail without retrying, rather than
+ * returning missing trains that would be recorded as cancellations.
+ * @returns simplified journeys (see parseJourneysResponse).
  */
 export async function fetchJourneys({
   token, fromId, toId, datetime, freshness = 'realtime', fetchImpl = fetch,
@@ -98,13 +99,15 @@ export async function fetchJourneys({
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        if (body.error && body.error.id === 'date_out_of_bounds') return [];
-        throw new Error(`SNCF API ${res.status}: ${body.error ? body.error.message : res.statusText}`);
+        throw new Error(`SNCF API ${res.status}: ${body.error ? body.error.message : res.statusText}`, {
+          cause: body.error,
+        });
       }
       const json = await res.json();
       if (onRawResponse) onRawResponse(json);
       return parseJourneysResponse(json);
     } catch (err) {
+      if (err.cause?.id === 'date_out_of_bounds') throw err;
       lastError = err;
     }
   }
