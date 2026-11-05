@@ -25,7 +25,8 @@ We investigated several sources. The relevant constraints:
 - There is **no retroactive history**: you cannot pull the last 30 days of
   realized delays. The dataset therefore starts now and grows forward.
 - Consequently the collector must run **daily on weekdays** (a weekly run would
-  miss most commutes). One evening run captures both that day's trains.
+  miss most commutes). Three passes capture the morning trains, evening trains,
+  and a final confirmation.
 
 (The Swiss "Ist-Daten" archive does hold real history, but only the Basel-side
 event for each train — morning *arrival* and evening *departure* — so we left it
@@ -79,9 +80,12 @@ red (**cancelled**).
 1. Push this repo to GitHub.
 2. **Settings → Secrets and variables → Actions** → add `SNCF_API_TOKEN`.
 3. **Settings → Pages** → *Deploy from a branch* → `main` / `/docs`.
-4. The workflow `.github/workflows/collect.yml` runs Mon–Fri at 18:00 UTC,
-   collects the day's trains, and commits the updated `docs/data/`. You can also
-   trigger it manually from the Actions tab.
+4. The workflow `.github/workflows/collect.yml` runs Mon–Fri at **10:17, 19:17,
+   and 21:17 Europe/Paris time**, automatically adjusting for daylight saving.
+   It collects today and the previous day, then commits the updated `docs/data/`.
+   The schedules avoid the busy start of each hour, but GitHub can still delay
+   or drop scheduled runs; these times are not guaranteed. You can also trigger
+   it manually from the Actions tab.
 
 ## Development
 
