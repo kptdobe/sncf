@@ -67,6 +67,8 @@ API request failures remain errors, not cancellations.
 Data is stored as **one JSON file per ISO week** under `docs/data/`
 (`2026-W24.json`, …), plus `manifest.json` which the dashboard reads first.
 Re-collecting a train replaces its existing observation for that date.
+Historical missing-train repairs preserve existing observations and only fill
+dates already represented in the dataset; entirely missing days are left untouched.
 
 ## Dashboard
 
