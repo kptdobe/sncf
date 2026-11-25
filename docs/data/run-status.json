@@ -1,6 +1,11 @@
 {
   "runs": [
     {
+      "timestamp": "2026-11-25T02:33:24.561Z",
+      "status": "failed",
+      "error": "SNCF API 404: The entry point: stop_area:SNCF:87182105 is not valid"
+    },
+    {
       "timestamp": "2026-11-24T20:13:47.116Z",
       "status": "failed",
       "error": "SNCF API 404: The entry point: stop_area:SNCF:87182105 is not valid"
@@ -162,16 +167,8 @@
       "dates": [
         "2026-11-16"
       ]
-    },
-    {
-      "timestamp": "2026-11-14T00:54:23.392Z",
-      "status": "success",
-      "observations": 8,
-      "dates": [
-        "2026-11-13"
-      ]
     }
   ],
   "lastSuccessAt": "2026-11-24T04:49:05.768Z",
-  "lastFailedAt": "2026-11-24T20:13:47.116Z"
+  "lastFailedAt": "2026-11-25T02:33:24.561Z"
 }
