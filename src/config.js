@@ -4,8 +4,8 @@ export const API_BASE = 'https://api.sncf.com/v1/coverage/sncf';
 
 // SNCF (Navitia) stop_area identifiers.
 export const STOPS = {
-  sierentz: 'stop_area:SNCF:87182105',
-  baselSBB: 'stop_area:SNCF:85000109',
+  sierentz: 'stop_area:SNC:FR::LMO:95e75f40-cb0a-11e8-8bfa-f784c1c7c611:',
+  baselSBB: 'stop_area:SNC:FR::LMU:a25be970-337a-11e9-b154-294c36c22c4f:',
 };
 
 // Every train runs the same ~18 min between the two stations.
